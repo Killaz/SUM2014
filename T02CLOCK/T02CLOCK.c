@@ -1,19 +1,27 @@
 /* AS4 03.06.14 */
 
-#include <stdlib.h>
 #include <math.h>
 #include <windows.h>
 
 #define WND_CLASS_NAME "My window class"
+#undef _WIN32_WINNT
 #define _WIN32_WINNT 0x0500
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 
+#define FIRSTSCREENH 1080
+#define FIRSTSCREENW 1920
+#define SECONDSCREENH 1024
+#define SECONDSCREENW 1280
+
+#define PIC_H 640
+#define PIC_W 640
+#define PIC_CX 320
+#define PIC_CY 320
+
 #pragma warning(disable: 4244)
 
-#define crand (rand() % 255)
-#define r0 ((int)((float) rand() / RAND_MAX))
 #define sqr(a) ((a) * (a))
 #ifndef min
 #define min(a, b) ((a) < (b) ? (a) : (b))
@@ -23,10 +31,6 @@
 #endif
 
 
-#ifdef RANDOMIZE
-#include <time.h>
-#endif
-
 LRESULT CALLBACK WindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
 INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine, INT ShowCmd )
@@ -35,12 +39,6 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   HWND hWnd;
   MSG msg;
   
-# ifdef RANDOMIZE
-  srand(time(0));
-# else
-  srand(13421);
-# endif
-
   wc.style = CS_VREDRAW | CS_HREDRAW;
   wc.cbClsExtra = 0;
   wc.cbWndExtra = 0;
@@ -58,7 +56,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
     return 0;
   }
 
-  hWnd = CreateWindow(WND_CLASS_NAME, "Clocks", WS_OVERLAPPEDWINDOW, 1920,0,  648, 674, NULL, NULL, hInstance, NULL);
+  hWnd = CreateWindow(WND_CLASS_NAME, "Clocks", WS_OVERLAPPEDWINDOW, 1920, 0, PIC_W + 8, PIC_H + 34, NULL, NULL, hInstance, NULL);
 
   ShowWindow(hWnd, SW_SHOWNORMAL);
   UpdateWindow(hWnd);
@@ -71,16 +69,58 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, CHAR *CmdLine,
   return msg.wParam;
 }
 
-LRESULT CALLBACK WindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+void Arrow( HDC hDC, POINT c, double a, INT r, INT w, COLORREF col )
+{
+  POINT pt[3];
+  double sn = sin(a), csn = cos(a);
+  pt[0].x = c.x - w * sn; pt[0].y = c.y + w * csn;
+  pt[1].x = c.x + w * sn; pt[1].y = c.y - w * csn;
+  pt[2].x = csn * r + c.x;
+  pt[2].y = sn * r + c.y;
+  SelectObject(hDC, GetStockObject(DC_BRUSH));
+  SelectObject(hDC, GetStockObject(DC_PEN));
+  SetDCBrushColor(hDC, col);
+  SetDCPenColor(hDC, col);
+  Polygon(hDC, pt, 3);
+}
+
+VOID FlipFullScreen( HWND hWnd, INT k )
+{
+  static BOOL FullScreen = 0;
+  static RECT SaveRC;
+
+  if (!FullScreen)
+  {
+    RECT rc;
+
+    GetWindowRect(hWnd, &SaveRC);
+
+    rc.left = rc.top = 0;
+    rc.right = GetSystemMetrics(SM_CXSCREEN);
+    rc.bottom = GetSystemMetrics(SM_CYSCREEN);
+
+    AdjustWindowRect(&rc, GetWindowLong(hWnd, GWL_STYLE), FALSE);
+
+    SetWindowPos(hWnd, HWND_TOPMOST, rc.left + k * FIRSTSCREENW, rc.top, rc.right - rc.left - k * (FIRSTSCREENW - SECONDSCREENW) /* + 1280*/, rc.bottom - rc.top, SWP_NOOWNERZORDER);
+    FullScreen = 1;
+  }
+  else
+  {
+    SetWindowPos(hWnd, HWND_TOP, SaveRC.left, SaveRC.top, SaveRC.right - SaveRC.left, SaveRC.bottom - SaveRC.top, SWP_NOOWNERZORDER);
+    FullScreen = 0;
+  }
+}
+
+LRESULT CALLBACK WindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
 {
   HDC hDC, hMemDC, hMemDCLogo;
   PAINTSTRUCT ps;
   BITMAP bm;
-  static INT W = 0, H = 0, k = 1;
+  static INT `W = 0, H = 0, k = 1, r = 290;
   static HBITMAP hBm, hBmLogo;
   SYSTEMTIME st;
-  POINT pS[3], pM[3], pH[3];
-  double a;
+  POINT c;
+  CHAR chr;
 
   switch (Msg)
   {
@@ -89,12 +129,18 @@ LRESULT CALLBACK WindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
     hBmLogo = LoadImage(NULL, "clockface.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     break;
   case WM_CHAR:
-    if ((CHAR)wParam == 27)
+    chr = (CHAR) wParam;
+
+    if (chr == 27)
       DestroyWindow(hWnd);
-    else if ((CHAR)wParam == '+')
+    else if (chr == '+')
       k++;
-    else if ((CHAR)wParam == '-')
+    else if (chr == '-')
       k--;
+    else if (chr == 'f' || chr == 'F')
+      FlipFullScreen(hWnd, 1);
+    else if (chr == 'g' || chr == 'G')
+      FlipFullScreen(hWnd, 0);
     return 0;
   case WM_ERASEBKGND:
     return 1;
@@ -112,8 +158,6 @@ LRESULT CALLBACK WindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
     hMemDC = CreateCompatibleDC(hDC);
     SelectObject(hMemDC, hBm);
 
-    /*SelectObject(hMemDC, DC_BRUSH);/**/
-    /*SelectObject(hMemDC, hBm);/**/
     SetDCBrushColor(hMemDC, RGB(255, 255, 255));
     Rectangle(hMemDC, 0, 0, W, H);
     
@@ -121,34 +165,14 @@ LRESULT CALLBACK WindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 
     hMemDCLogo = CreateCompatibleDC(hMemDC);
     SelectObject(hMemDCLogo, hBmLogo);
-    BitBlt(hMemDC, 0, 0, W, H, hMemDCLogo, 0, 0, SRCCOPY);
-
-    SelectObject(hMemDC, GetStockObject(DC_BRUSH));
+    BitBlt(hMemDC, max(W / 2 - PIC_CX, 0), max(H / 2 - PIC_CY, 0), W, H, hMemDCLogo, 0, 0, SRCCOPY);
+    c.x = PIC_CX + max(W / 2 - PIC_CX, 0);
+    c.y = PIC_CY + max(H / 2 - PIC_CY, 0);
 
     GetLocalTime(&st);
-    a = k * 2 * M_PI * (st.wHour + st.wMinute / 60.0 + st.wSecond / 3600.0 + st.wMilliseconds / 3600000.0) / 12 - M_PI / 2;
-    pH[0].x = 320 - 6 * sin(a); pH[0].y = 320 + 6 * cos(a);
-    pH[1].x = 320 + 6 * sin(a); pH[1].y = 320 - 6 * cos(a);
-    pH[2].x = cos(a) * 300 + 320;
-    pH[2].y = sin(a) * 300 + 320;
-    SetDCBrushColor(hMemDC, RGB(255, 0, 0));
-    Polygon(hMemDC, pH, 3);
-
-    a = k * 2 * M_PI * (st.wMinute + st.wSecond / 60.0 + st.wMilliseconds / 60000.0) / 60 - M_PI / 2;
-    pM[0].x = 320 - 4 * sin(a); pM[0].y = 320 + 4 * cos(a);
-    pM[1].x = 320 + 4 * sin(a); pM[1].y = 320 - 4 * cos(a);
-    pM[2].x = cos(a) * 300 + 320;
-    pM[2].y = sin(a) * 300 + 320;
-    SetDCBrushColor(hMemDC, RGB(0, 255, 0));
-    Polygon(hMemDC, pM, 3);
-
-    a = k * 2 * M_PI * (st.wSecond + st.wMilliseconds / 1000.0) / 60 - M_PI / 2;
-    pS[0].x = 320 - 2 * sin(a); pS[0].y = 320 + 2 * cos(a);
-    pS[1].x = 320 + 2 * sin(a); pS[1].y = 320 - 2 * cos(a);
-    pS[2].x = cos(a) * 300 + 320;
-    pS[2].y = sin(a) * 300 + 320;
-    SetDCBrushColor(hMemDC, RGB(0, 0, 0));
-    Polygon(hMemDC, pS, 3);
+    Arrow(hMemDC, c, k * 2 * M_PI * (st.wHour/* % 12*/ + st.wMinute / 60.0 + st.wSecond / 3600.0 + st.wMilliseconds / 3600000.0) / 12 - M_PI / 2, r, 7, RGB(255, 0, 0));
+    Arrow(hMemDC, c, k * 2 * M_PI * (st.wMinute + st.wSecond / 60.0 + st.wMilliseconds / 60000.0) / 60 - M_PI / 2, r, 4, RGB(0, 255, 0));
+    Arrow(hMemDC, c, k * 2 * M_PI * (st.wSecond + st.wMilliseconds / 1000.0) / 60 - M_PI / 2, r, 2, RGB(0, 0, 0));
                            
     BitBlt(hDC, 0, 0, W, H, hMemDC, 0, 0, SRCCOPY);
     DeleteDC(hMemDC);
