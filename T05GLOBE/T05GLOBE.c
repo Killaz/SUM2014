@@ -88,7 +88,7 @@ void Arrow( HDC hDC, POINT c, double a, INT r, INT w, COLORREF col )
   Polygon(hDC, pt, 3);
 }
 
-VOID FlipFullScreen( HWND hWnd, INT k )
+VOID FlipFullScreen( HWND hWnd )
 {
   static BOOL FullScreen = 0;
   static RECT SaveRC;
@@ -96,16 +96,21 @@ VOID FlipFullScreen( HWND hWnd, INT k )
   if (!FullScreen)
   {
     RECT rc;
+    HMONITOR hmon;
+    MONITORINFOEX moninfo;
 
     GetWindowRect(hWnd, &SaveRC);
 
-    rc.left = rc.top = 0;
-    rc.right = GetSystemMetrics(SM_CXSCREEN);
-    rc.bottom = GetSystemMetrics(SM_CYSCREEN);
+    hmon = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+
+    moninfo.cbSize = sizeof(moninfo);
+    GetMonitorInfo(hmon, (MONITORINFO *)&moninfo);
+    
+    rc = moninfo.rcMonitor;
 
     AdjustWindowRect(&rc, GetWindowLong(hWnd, GWL_STYLE), FALSE);
 
-    SetWindowPos(hWnd, HWND_TOPMOST, rc.left + k * FIRSTSCREENW, rc.top, rc.right - rc.left - k * (FIRSTSCREENW - SECONDSCREENW) /* + 1280*/, rc.bottom - rc.top, SWP_NOOWNERZORDER);
+    SetWindowPos(hWnd, HWND_TOPMOST, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top + 201, SWP_NOOWNERZORDER);
     FullScreen = 1;
   }
   else
@@ -117,20 +122,23 @@ VOID FlipFullScreen( HWND hWnd, INT k )
 
 void Globe( HDC hDC, INT W, INT H, INT R, double acc )
 {
-  double O, f;
+  INT i, j;
+  double x, y;
+  double f;
   double csn, sn;
-  static double k = 0;
-  for (O = 0; O < M_PI2; O += M_PI / 120)
+  static double k = 0, r = 1;
+  for (i = 0; i < M_PI * 120; i++)
   {
-    csn = cos(O);
-    sn = sin(O);
-    for (f = 0; f < M_PI2; f += M_PI / 120)
+    csn = cos(i * M_PI / 120);
+    sn = sin(i * M_PI / 120);
+    for (j = 0; j < M_PI2 * 120; j++)
     {
+      f = j * M_PI / 120;
+      x = W / 2 + R * sn * cos(f + k);
+      y = H / 2 + R * csn;
       if (sn * sin(f + k)/*!z*/ < 0)
         continue;
-      SetPixel(hDC, W / 2 + R * sn * cos(f + k), H / 2 + R * csn, RGB(31, 212, 49));
-      /*MoveToEx(hDC, W / 2 + R * sn * cos(f - M_PI / 20), H / 2 + R * csn, NULL);
-      LineTo(hDC, W / 2 + R * sn * cos(f), H / 2 + R * csn);*/
+      SetPixel(hDC, x, y, RGB(31, 212, 49));
     }  
   }
   k += acc;
@@ -138,18 +146,15 @@ void Globe( HDC hDC, INT W, INT H, INT R, double acc )
 
 LRESULT CALLBACK WindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
 {
-  HDC hDC, hMemDC;//, hMemDCLogo;
+  HDC hDC, hMemDC;
   PAINTSTRUCT ps;
-/*  BITMAP bm;*/
   static INT W = 0, H = 0, r = 290, R = 300, xyacc = 20;
   int i;
   static double k = M_PI / 80 - M_PI / 200;
   static HBITMAP hBm, hBmLogo;
   static POINT c = {0, 0};
+  MINMAXINFO *minmax;
   unsigned char keys[256];
-  /*SYSTEMTIME st;
-  POINT c;*/
-//  CHAR chr;
 
   switch (Msg)
   {
@@ -175,9 +180,9 @@ LRESULT CALLBACK WindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
     if (keys[VK_NUMPAD0])
       k = M_PI / 80 - M_PI / 200, c.x = c.y = 0;
     if (keys['F'])
-      FlipFullScreen(hWnd, 1);
+      FlipFullScreen(hWnd);
     if (keys['G'])
-      FlipFullScreen(hWnd, 0);
+      FlipFullScreen(hWnd);
     if (keys['A'] || keys[VK_NUMPAD4] || keys[VK_LEFT])
       c.x += xyacc;
     if (keys['S'] || keys[VK_NUMPAD2] || keys[VK_DOWN])
@@ -193,6 +198,10 @@ LRESULT CALLBACK WindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
     return 0;
   case WM_ERASEBKGND:
     return 1;
+  case WM_GETMINMAXINFO:
+    minmax = (MINMAXINFO *)lParam;
+    minmax->ptMaxTrackSize.y = GetSystemMetrics(SM_CYMAXTRACK) + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CYBORDER) * 2;
+    return 0;
   case WM_SIZE:
     W = LOWORD(lParam);
     H = HIWORD(lParam);
@@ -216,7 +225,7 @@ LRESULT CALLBACK WindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
     /* PAINTING */
 
     Globe(hMemDC, W + c.x, H + c.y, R, k);
-    Globe(hMemDC, W - c.x, H + c.y, R, k);
+    /*Globe(hMemDC, W - c.x, H + c.y, R, k);
     Globe(hMemDC, W + c.x, H - c.y, R, k);
     Globe(hMemDC, W - c.x, H - c.y, R, k);/**/
 
