@@ -11,11 +11,24 @@
 
 #include "anim.h"
 
+#define PIC_H 640
+#define PIC_W 640
+#define PIC_CX 320
+#define PIC_CY 320
+
+#ifndef min
+#define min(a, b) ((a) < (b) ? (a) : (b))
+#endif
+#ifndef max
+#define max(a, b) ((a) > (b) ? (a) : (b))
+#endif
+
 /* Структура описания объекта анимации */
 typedef struct tagas4UNIT_CLOCK
 {
   AS4_UNIT_BASE_FIELDS; /* Включение базовых полей */
   INT r;
+  HBITMAP hBm;
 } as4UNIT_CLOCK;
 
 void Arrow( HDC hDC, POINT c, double a, INT r, INT w, COLORREF col )
@@ -80,9 +93,28 @@ static VOID ClockUnitResponse( as4UNIT_CLOCK *Unit, as4ANIM *Ani )
 static VOID ClockUnitRender( as4UNIT_CLOCK *Unit, as4ANIM *Ani )
 {
   SYSTEMTIME st;
+  BITMAP bm;
+  HDC hDCLogo;
+  HDC hScrDC, hMemDC;
   POINT c;
   c.x = Ani->W / 2;
   c.y = Ani->H / 2;
+
+  //Ani->hDC = GetDC(NULL);
+  hScrDC = GetDC(NULL);
+  hMemDC = CreateCompatibleDC(hScrDC);
+  SelectObject(hMemDC/*Ani->hDC*/, Unit->hBm);
+  
+  GetObject(Unit->hBm, sizeof(bm), &bm);/**/
+
+  hDCLogo = CreateCompatibleDC(hMemDC/*Ani->hDC*/);
+  SelectObject(hDCLogo, Unit->hBm);
+  BitBlt(hMemDC/*Ani->hDC*/, 0, 0, Ani->W, Ani->H, hDCLogo, 0, 0, SRCCOPY);
+  BitBlt(Ani->hDC, max(Ani->W / 2 - PIC_CX, 0), max(Ani->H / 2 - PIC_CY, 0), Ani->W, Ani->H, hMemDC, 0, 0, SRCCOPY);
+  DeleteDC(hDCLogo);
+  DeleteDC(hScrDC);
+  DeleteDC(hMemDC);
+
   GetLocalTime(&st);
   Arrow(Ani->hDC, c, 2 * M_PI * (st.wHour/* % 12*/ + st.wMinute / 60.0 + st.wSecond / 3600.0 + st.wMilliseconds / 3600000.0) / 12 - M_PI / 2, Unit->r, 7, RGB(255, 0, 0));
   Arrow(Ani->hDC, c, 2 * M_PI * (st.wMinute + st.wSecond / 60.0 + st.wMilliseconds / 60000.0) / 60 - M_PI / 2, Unit->r, 4, RGB(0, 255, 0));
@@ -103,9 +135,10 @@ as4UNIT * AS4_ClockUnitCreate( VOID )
   /* заполняем поля по-умолчанию */
   Unit->Init = (VOID *)ClockUnitInit;
   Unit->Close = (VOID *)ClockUnitClose;
-  Unit->Response = (VOID *)ClockUnitResponse;
+  Unit->Response = (VOID *)ClockUnitResponse;                                                  
   Unit->Render = (VOID *)ClockUnitRender;
   Unit->r = 290;
+  Unit->hBm = LoadImage(NULL, "clockface.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
   return (as4UNIT *)Unit;
 } /* End of 'AS4_ClockUnitCreate' function */
 

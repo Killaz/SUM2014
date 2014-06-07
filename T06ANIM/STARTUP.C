@@ -36,14 +36,13 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
   WNDCLASS wc;
   HWND hWnd;
   MSG msg;
-  INT i;
 
   /* Регистрация - создание собственного класса окна */
   wc.style = CS_HREDRAW | CS_VREDRAW;
   wc.cbClsExtra = 0; /* Дополнительное количество байт для класса */
   wc.cbWndExtra = 0; /* Дополнительное количество байт для окна */
   wc.hbrBackground = (HBRUSH)COLOR_WINDOW; /* Фоновый цвет - выбранный в системе */
-  wc.hCursor = LoadCursor(NULL, IDC_HAND);
+  wc.hCursor = LoadCursor(NULL, IDC_CROSS);
   wc.hIcon = LoadIcon(NULL, IDI_ERROR);
   wc.lpszMenuName = NULL;
   wc.hInstance = hInstance;
@@ -61,7 +60,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
   hWnd = CreateWindow(WND_CLASS_NAME, "First Window Sample",
     WS_OVERLAPPEDWINDOW,
     1920, 0,                      /* Позиция окна (x, y) - по умолчанию */
-    800, 800, /* Размеры окна (w, h) - по умолчанию */
+    800 + 8, 800 + 34, /* Размеры окна (w, h) - по умолчанию */
     NULL,                         /* Дескриптор родительского окна */
     NULL,                         /* Дескриптор загруженного меню */
     hInstance,                    /* Дескриптор приложения */
@@ -71,8 +70,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UpdateWindow(hWnd);
 
   /*** Добавление объектов ***/
-  for (i = 0; i < 30 * 30; i++)
-    AS4_AnimAddUnit(AS4_ClockUnitCreate());
+  AS4_AnimAddUnit(AS4_ClockUnitCreate());
   AS4_AnimAddUnit(AS4_InfoUnitCreate());
 
   /* Запуск цикла обработки сообщений */
