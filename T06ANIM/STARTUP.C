@@ -60,7 +60,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
   hWnd = CreateWindow(WND_CLASS_NAME, "First Window Sample",
     WS_OVERLAPPEDWINDOW,
     1920, 0,                      /* Позиция окна (x, y) - по умолчанию */
-    800 + 8, 800 + 34, /* Размеры окна (w, h) - по умолчанию */
+    900 + 8, 900 + 34, /* Размеры окна (w, h) - по умолчанию */
     NULL,                         /* Дескриптор родительского окна */
     NULL,                         /* Дескриптор загруженного меню */
     hInstance,                    /* Дескриптор приложения */
@@ -71,6 +71,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
   /*** Добавление объектов ***/
   AS4_AnimAddUnit(AS4_ClockUnitCreate());
+  AS4_AnimAddUnit(AS4_LogoUnitCreate());
   AS4_AnimAddUnit(AS4_InfoUnitCreate());
 
   /* Запуск цикла обработки сообщений */

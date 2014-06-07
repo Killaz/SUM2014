@@ -95,25 +95,20 @@ static VOID ClockUnitRender( as4UNIT_CLOCK *Unit, as4ANIM *Ani )
   SYSTEMTIME st;
   BITMAP bm;
   HDC hDCLogo;
-  HDC hScrDC, hMemDC;
+  HDC hScrDC;
   POINT c;
   c.x = Ani->W / 2;
   c.y = Ani->H / 2;
 
-  //Ani->hDC = GetDC(NULL);
   hScrDC = GetDC(NULL);
-  hMemDC = CreateCompatibleDC(hScrDC);
-  SelectObject(hMemDC/*Ani->hDC*/, Unit->hBm);
   
-  GetObject(Unit->hBm, sizeof(bm), &bm);/**/
+  GetObject(Unit->hBm, sizeof(bm), &bm);
 
-  hDCLogo = CreateCompatibleDC(hMemDC/*Ani->hDC*/);
+  hDCLogo = CreateCompatibleDC(Ani->hDC);
   SelectObject(hDCLogo, Unit->hBm);
-  BitBlt(hMemDC/*Ani->hDC*/, 0, 0, Ani->W, Ani->H, hDCLogo, 0, 0, SRCCOPY);
-  BitBlt(Ani->hDC, max(Ani->W / 2 - PIC_CX, 0), max(Ani->H / 2 - PIC_CY, 0), Ani->W, Ani->H, hMemDC, 0, 0, SRCCOPY);
+  BitBlt(Ani->hDC, max(Ani->W / 2 - PIC_CX, 0), max(Ani->H / 2 - PIC_CY, 0), Ani->W, Ani->H, hDCLogo, 0, 0, SRCCOPY);
   DeleteDC(hDCLogo);
   DeleteDC(hScrDC);
-  DeleteDC(hMemDC);
 
   GetLocalTime(&st);
   Arrow(Ani->hDC, c, 2 * M_PI * (st.wHour/* % 12*/ + st.wMinute / 60.0 + st.wSecond / 3600.0 + st.wMilliseconds / 3600000.0) / 12 - M_PI / 2, Unit->r, 7, RGB(255, 0, 0));
@@ -157,8 +152,8 @@ static VOID InfoUnitRender( as4UNIT *Unit, as4ANIM *Ani )
   static CHAR Buf[1000];
 
   SetBkMode(Ani->hDC, TRANSPARENT);
-  SetTextColor(Ani->hDC, RGB(255, 255, 155));
-  TextOut(Ani->hDC, Ani->W - 80, 80, Buf, sprintf(Buf, "FPS: %.3f", Ani->FPS));
+  SetTextColor(Ani->hDC, RGB(95, 30, 155));
+  TextOut(Ani->hDC, Ani->W - 85, 256, Buf, sprintf(Buf, "FPS: %.3f", Ani->FPS));
 } /* End of 'AS4_AnimUnitRender' function */
 
 /* Функция создания информационного объекта анимации.

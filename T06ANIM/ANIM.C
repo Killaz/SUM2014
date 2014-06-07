@@ -141,7 +141,7 @@ VOID AS4_AnimRender( VOID )
   /* очистка фона */
   SelectObject(AS4_Anim.hDC, GetStockObject(DC_BRUSH));
   SelectObject(AS4_Anim.hDC, GetStockObject(NULL_PEN));
-  SetDCBrushColor(AS4_Anim.hDC, RGB(5, 39, 158));
+  SetDCBrushColor(AS4_Anim.hDC, RGB(255, 255, 255));
   Rectangle(AS4_Anim.hDC, 0, 0, AS4_Anim.W, AS4_Anim.H);
 
   /* опрос на изменение состояний объектов */
