@@ -97,16 +97,17 @@ static VOID ClockUnitRender( as4UNIT_CLOCK *Unit, as4ANIM *Ani )
   HDC hDCLogo;
   HDC hScrDC;
   POINT c;
-  c.x = Ani->W / 2;
-  c.y = Ani->H / 2;
 
   hScrDC = GetDC(NULL);
   
   GetObject(Unit->hBm, sizeof(bm), &bm);
+  Unit->r = bm.bmWidth / 2.5;
+  c.x = max(Ani->W / 2, bm.bmWidth / 2);
+  c.y = max(Ani->H / 2, bm.bmHeight / 2);
 
   hDCLogo = CreateCompatibleDC(Ani->hDC);
   SelectObject(hDCLogo, Unit->hBm);
-  BitBlt(Ani->hDC, max(Ani->W / 2 - PIC_CX, 0), max(Ani->H / 2 - PIC_CY, 0), Ani->W, Ani->H, hDCLogo, 0, 0, SRCCOPY);
+  BitBlt(Ani->hDC, max(Ani->W / 2 - bm.bmWidth / 2, 0), max(Ani->H / 2 - bm.bmHeight / 2, 0), Ani->W, Ani->H, hDCLogo, 0, 0, SRCCOPY);
   DeleteDC(hDCLogo);
   DeleteDC(hScrDC);
 

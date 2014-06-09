@@ -91,7 +91,7 @@ as4UNIT * AS4_CowUnitCreate( VOID )
   Unit->Close = (VOID *)CowUnitClose;
   Unit->Response = (VOID *)CowUnitResponse;
   Unit->Render = (VOID *)CowUnitRender;
-  Unit->ShiftX = 30 * 30.59 * rand() / RAND_MAX;
+  Unit->ShiftX = 30 * 60.59 * rand() / RAND_MAX;
   Unit->ShiftY = 30 * 30.59 * rand() / RAND_MAX;
   Unit->Type = rand() % 2;
   return (as4UNIT *)Unit;
