@@ -12,6 +12,14 @@
 /* Максимальное количество элементов анимации */
 #define AS4_MAX_UNITS 3000
 
+#define AS4_JOYSTICK_THRESHOLD 64.0
+
+/* Устранение ошибок замера джойстика */
+#define AS4_GET_AXIS_VALUE(A) \
+  ((INT)(AS4_JOYSTICK_THRESHOLD * (2.0 * (ji.dw ## A ## pos - jc.w ## A ## min) / \
+   (jc.w ## A ## max - jc.w ## A ##min - 1) - 1) + 0.5) / AS4_JOYSTICK_THRESHOLD)
+
+
 /* Объявление типа объектов анимации "вперед" */
 typedef struct tagas4UNIT as4UNIT;
 

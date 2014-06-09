@@ -98,8 +98,12 @@ VOID AS4_AnimResize( INT W, INT H )
  */
 VOID AS4_AnimRender( VOID )
 {
+  static BOOL rend = 0;
   INT i;
   LARGE_INTEGER li;
+  if (rend)
+    return;
+  rend = 1;
 
   /* Обновление ввода */
   GetKeyboardState(AS4_Anim.Keys);
@@ -159,6 +163,7 @@ VOID AS4_AnimRender( VOID )
   }
 
   FrameCounter++;
+  rend = 0;
 } /* End of 'AS4_AnimRender' function */
 
 /* Функция вывода кадра анимации.
@@ -197,7 +202,7 @@ VOID AS4_AnimAddUnit( as4UNIT *Unit )
  */
 VOID AS4_AnimFlipFullScreen( VOID )
 {
-  static BOOL IsFullScreen = FALSE; /* текущий режим */
+  static BOOL IsFullScreen = 0; /* текущий режим */
   static RECT SaveRC;               /* сохраненный размер */
 
   if (!IsFullScreen)
@@ -227,20 +232,13 @@ VOID AS4_AnimFlipFullScreen( VOID )
 
     AdjustWindowRect(&rc, GetWindowLong(AS4_Anim.hWnd, GWL_STYLE), FALSE);
 
-    SetWindowPos(AS4_Anim.hWnd, HWND_TOP,
-      rc.left, rc.top,
-      rc.right - rc.left, rc.bottom - rc.top + 201,
-      SWP_NOOWNERZORDER);
-    IsFullScreen = TRUE;
-  }
-  else
+    SetWindowPos(AS4_Anim.hWnd, HWND_TOP, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top + 201, SWP_NOOWNERZORDER);
+    IsFullScreen = 1;
+  } else
   {
     /* восстанавливаем размер окна */
-    SetWindowPos(AS4_Anim.hWnd, HWND_TOPMOST,
-      SaveRC.left, SaveRC.top,
-      SaveRC.right - SaveRC.left, SaveRC.bottom - SaveRC.top,
-      SWP_NOOWNERZORDER);
-    IsFullScreen = FALSE;
+    SetWindowPos(AS4_Anim.hWnd, HWND_TOPMOST, SaveRC.left, SaveRC.top, SaveRC.right - SaveRC.left, SaveRC.bottom - SaveRC.top, SWP_NOOWNERZORDER);
+    IsFullScreen = 0;
   }
 } /* End of 'AS4_AnimFlipFullScreen' function */
 

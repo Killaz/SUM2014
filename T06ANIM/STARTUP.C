@@ -123,20 +123,9 @@ LRESULT CALLBACK MainWindowFunc( HWND hWnd, UINT Msg,
     AS4_AnimRender();
     AS4_AnimCopyFrame();
     return 0;
-  /*case WM_CHAR:
-    switch ((CHAR)wParam)
-    {
-    case 27:
-      DestroyWindow(hWnd);
-      return 0;
-    case 'f':
-      AS4_AnimFlipFullScreen();
-      return 0;
-    case 'p':
-      AS4_AnimSetPause(pause = !pause);
-      return 0;
-    }
-    return 0;*/
+  case WM_SYSCOMMAND:
+    wParam;
+    break;
   case WM_ERASEBKGND:
     return 1;
   case WM_PAINT:
