@@ -90,6 +90,7 @@ static VOID ClockUnitResponse( as4UNIT_CLOCK *Unit, as4ANIM *Ani )
  *       as4ANIM *Ani;
  * ÂÎÇÂÐÀÙÀÅÌÎÅ ÇÍÀ×ÅÍÈÅ: Íåò.
  */
+
 static VOID ClockUnitRender( as4UNIT_CLOCK *Unit, as4ANIM *Ani )
 {
   SYSTEMTIME st;
@@ -134,7 +135,7 @@ as4UNIT * AS4_ClockUnitCreate( VOID )
   Unit->Response = (VOID *)ClockUnitResponse;                                                  
   Unit->Render = (VOID *)ClockUnitRender;
   Unit->r = 290;
-  Unit->hBm = LoadImage(NULL, "clockface.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  Unit->hBm = LoadImage(NULL, "img/clockface.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
   return (as4UNIT *)Unit;
 } /* End of 'AS4_ClockUnitCreate' function */
 
@@ -148,30 +149,6 @@ as4UNIT * AS4_ClockUnitCreate( VOID )
  *       as4ANIM *Ani;
  * ÂÎÇÂÐÀÙÀÅÌÎÅ ÇÍÀ×ÅÍÈÅ: Íåò.
  */
-static VOID InfoUnitRender( as4UNIT *Unit, as4ANIM *Ani )
-{
-  static CHAR Buf[1000];
-
-  SetBkMode(Ani->hDC, TRANSPARENT);
-  SetTextColor(Ani->hDC, RGB(95, 30, 155));
-  TextOut(Ani->hDC, Ani->W - 85, 256, Buf, sprintf(Buf, "FPS: %.3f", Ani->FPS));
-} /* End of 'AS4_AnimUnitRender' function */
-
-/* Ôóíêöèÿ ñîçäàíèÿ èíôîðìàöèîííîãî îáúåêòà àíèìàöèè.
- * ÀÐÃÓÌÅÍÒÛ: Íåò.
- * ÂÎÇÂÐÀÙÀÅÌÎÅ ÇÍÀ×ÅÍÈÅ:
- *   (as4UNIT *) óêàçàòåëü íà ñîçäàííûé îáúåêò àíèìàöèè.
- */
-as4UNIT * AS4_InfoUnitCreate( VOID )
-{
-  as4UNIT *Unit;
-
-  if ((Unit = AS4_AnimUnitCreate(sizeof(as4UNIT))) == NULL)
-    return NULL;
-  /* çàïîëíÿåì ïîëÿ ïî-óìîë÷àíèþ */
-  Unit->Render = (VOID *)InfoUnitRender;
-  return Unit;
-} /* End of 'AS4_InfoUnitCreate' function */
 
 /* END OF 'SAMPLE.C' FILE */
 

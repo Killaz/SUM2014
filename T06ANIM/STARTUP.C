@@ -123,7 +123,7 @@ LRESULT CALLBACK MainWindowFunc( HWND hWnd, UINT Msg,
     AS4_AnimRender();
     AS4_AnimCopyFrame();
     return 0;
-  case WM_CHAR:
+  /*case WM_CHAR:
     switch ((CHAR)wParam)
     {
     case 27:
@@ -136,7 +136,7 @@ LRESULT CALLBACK MainWindowFunc( HWND hWnd, UINT Msg,
       AS4_AnimSetPause(pause = !pause);
       return 0;
     }
-    return 0;
+    return 0;*/
   case WM_ERASEBKGND:
     return 1;
   case WM_PAINT:
