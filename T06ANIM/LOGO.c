@@ -45,7 +45,7 @@ typedef struct tagas4UNIT_INFO
  * ¬Œ«¬–¿Ÿ¿≈ÃŒ≈ «Õ¿◊≈Õ»≈: ÕÂÚ.
  */
 
-static struct
+struct
 {
   BYTE
     Keys[256], KeysClick[256], KeysOld[256];
@@ -57,7 +57,7 @@ static struct
 } AS4_Anim;
 
 POINT lg, cl;
-static INT type = 0;
+static INT type = 0, lgspeed;
 
 static VOID LogoUnitInit( as4UNIT_LOGO *Unit, as4ANIM *Ani )
 {
@@ -95,9 +95,20 @@ static VOID LogoUnitResponse( as4UNIT_LOGO *Unit, as4ANIM *Ani )
  *       as4ANIM *Ani;
  * ¬Œ«¬–¿Ÿ¿≈ÃŒ≈ «Õ¿◊≈Õ»≈: ÕÂÚ.
  */
+
+INT Aver( INT c, INT a, INT b )
+{
+  if (c < a)
+    c += (b - a) * ((a - c) / (b - a) + 1);
+  else if (c > b)
+    c -= (b - a) * ((c - b) / (b - a) + 1);
+  return c;
+}
+
 static VOID LogoUnitRender( as4UNIT_LOGO *Unit, as4ANIM *Ani )
 {
   /*SYSTEMTIME st;*/
+  INT LGx, LGy; 
   BITMAP bm;
   HDC hScrDC, hMemDC1;
   //INT type = time(0) % AS4_LOGO_COUNT;
@@ -106,10 +117,13 @@ static VOID LogoUnitRender( as4UNIT_LOGO *Unit, as4ANIM *Ani )
   hMemDC1 = CreateCompatibleDC(hScrDC);
   GetObject(Unit->hBm_AND[type], sizeof(bm), &bm);/**/
 
+  LGx = Aver(Ani->W - bm.bmWidth + lg.x, -256, Ani->W);
+  LGy = Aver(lg.y, -256, Ani->H);
+
   SelectObject(hMemDC1, Unit->hBm_AND[type]);
-  BitBlt(Ani->hDC, Ani->W - bm.bmWidth + lg.x, 0 + lg.y, bm.bmWidth, bm.bmHeight, hMemDC1, 0, 0, SRCAND);
+  BitBlt(Ani->hDC, LGx, LGy, bm.bmWidth, bm.bmHeight, hMemDC1, 0, 0, SRCAND);
   SelectObject(hMemDC1, Unit->hBm_XOR[type]);
-  BitBlt(Ani->hDC, Ani->W - bm.bmWidth + lg.x, 0 + lg.y, bm.bmWidth, bm.bmHeight, hMemDC1, 0, 0, SRCINVERT);
+  BitBlt(Ani->hDC, LGx, LGy, bm.bmWidth, bm.bmHeight, hMemDC1, 0, 0, SRCINVERT);
 
   ReleaseDC(NULL, hScrDC);
   DeleteDC(hMemDC1);
@@ -133,11 +147,12 @@ as4UNIT * AS4_LogoUnitCreate( VOID )
   Unit->Close = (VOID *)LogoUnitClose;
   Unit->Response = (VOID *)LogoUnitResponse;                                                  
   Unit->Render = (VOID *)LogoUnitRender;
+  lgspeed = 10;
   for (i = 0; i < AS4_LOGO_COUNT; i++)
   {
-    sprintf(name, "img/YOBA_%d_and.bmp", i);
+    sprintf(name, "img\\YOBA_%d_and.bmp", i);
     Unit->hBm_AND[i] = LoadImage(NULL, name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    sprintf(name, "img/YOBA_%d_xor.bmp", i);
+    sprintf(name, "img\\YOBA_%d_xor.bmp", i);
     Unit->hBm_XOR[i] = LoadImage(NULL, name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
   }
   return (as4UNIT *)Unit;
@@ -167,7 +182,10 @@ static VOID InfoUnitResponse( as4UNIT_INFO *Unit, as4ANIM *Ani )
   for (i = 0; i < 256; i++)
     AS4_Anim.KeysClick[i] = AS4_Anim.Keys[i] && !AS4_Anim.KeysOld[i];
   if (AS4_Anim.KeysClick[VK_ESCAPE])
+  {
     DestroyWindow(Ani->hWnd);
+    return;
+  }
   if (AS4_Anim.KeysClick['F'])
     AS4_AnimFlipFullScreen();
   if (AS4_Anim.KeysClick['P'])
@@ -201,6 +219,11 @@ static VOID InfoUnitResponse( as4UNIT_INFO *Unit, as4ANIM *Ani )
           type = ((type - 1) + AS4_LOGO_COUNT) % AS4_LOGO_COUNT;
         if (AS4_Anim.JButsClick[6])
           type = (type + 1) % AS4_LOGO_COUNT;
+        if (AS4_Anim.JButsClick[0])
+          if (lgspeed > 0)
+            lgspeed -= 5;
+        if (AS4_Anim.JButsClick[3])
+            lgspeed += 5;
         /* ŒÒË */
         AS4_Anim.JX = AS4_GET_AXIS_VALUE(X);/*2.0 * (ji.dwXpos - jc.wXmin) / (jc.wXmax - jc.wXmin - 1) - 1;*/
         AS4_Anim.JY = AS4_GET_AXIS_VALUE(Y);/*2.0 * (ji.dwYpos - jc.wYmin) / (jc.wYmax - jc.wYmin - 1) - 1;*/
@@ -224,8 +247,8 @@ static VOID InfoUnitResponse( as4UNIT_INFO *Unit, as4ANIM *Ani )
   }
   cl.x += AS4_Anim.JX * 10;
   cl.y += AS4_Anim.JY * 10;
-  lg.x += AS4_Anim.JR * 10;
-  lg.y += AS4_Anim.JZ * 10;
+  lg.x += AS4_Anim.JR * lgspeed;
+  lg.y += AS4_Anim.JZ * lgspeed;
 } /* End of 'LogoUnitResponse' function */
 
 as4UNIT * AS4_InfoUnitCreate( VOID )

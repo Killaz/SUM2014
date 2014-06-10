@@ -9,6 +9,10 @@
 
 #pragma warning(disable: 4244)
 
+#ifndef sqr
+#define sqr(a) ((a) * (a))
+#endif
+
 #include <windows.h>
 
 /* Large integer data types */

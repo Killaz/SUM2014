@@ -52,7 +52,7 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
   /* Регистрируем класс */
   if (!RegisterClass(&wc))
   {
-    MessageBox(NULL, "Error register window class", "Error", MB_ICONERROR | MB_OK);
+    MessageBox(NULL, "Error while registering window class", "Error", MB_ICONERROR | MB_OK);
     return 0;
   }
 
@@ -70,7 +70,8 @@ INT WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance,
   UpdateWindow(hWnd);
 
   /*** Добавление объектов ***/
-  AS4_AnimAddUnit(AS4_ClockUnitCreate());
+  /*AS4_AnimAddUnit(AS4_ClockUnitCreate());*/
+  AS4_AnimAddUnit(AS4_CubeUnitCreate());
   AS4_AnimAddUnit(AS4_LogoUnitCreate());
   AS4_AnimAddUnit(AS4_InfoUnitCreate());
 
@@ -123,9 +124,9 @@ LRESULT CALLBACK MainWindowFunc( HWND hWnd, UINT Msg,
     AS4_AnimRender();
     AS4_AnimCopyFrame();
     return 0;
-  case WM_SYSCOMMAND:
+  /*case WM_SYSCOMMAND:
     wParam;
-    break;
+    break;*/
   case WM_ERASEBKGND:
     return 1;
   case WM_PAINT:

@@ -19,6 +19,8 @@ as4UNIT * AS4_ClockUnitCreate( VOID );
 
 as4UNIT * AS4_LogoUnitCreate( VOID );
 
+as4UNIT * AS4_CubeUnitCreate( VOID );
+
 #endif /* __UNITS_H_ 143 82*/
 
 /* END OF 'UNITS.H' FILE */
