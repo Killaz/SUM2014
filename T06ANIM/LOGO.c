@@ -23,6 +23,42 @@
 #define max(a, b) ((a) > (b) ? (a) : (b))
 #endif
 
+
+#define JXCoord JX
+#define JYCoord JY
+
+#ifndef SAITEK
+#define JZCoord JZ
+#define JRCoord JR
+#define JBUTTON1 0
+#define JBUTTON2 1
+#define JBUTTON3 2
+#define JBUTTON4 3
+#define JBUTTON5 4
+#define JBUTTON6 5
+#define JBUTTON7 6
+#define JBUTTON8 7
+#define JBUTTON9 8
+#define JBUTTON10 9
+#define JBUTTON11 10
+#define JBUTTON12 11
+#else
+#define JZCoord JR
+#define JRCoord JZ
+#define JBUTTON1 2
+#define JBUTTON2 3
+#define JBUTTON3 0
+#define JBUTTON4 1
+#define JBUTTON5 4
+#define JBUTTON6 6
+#define JBUTTON7 5
+#define JBUTTON8 7
+#define JBUTTON9 8
+#define JBUTTON10 9
+#define JBUTTON11 10
+#define JBUTTON12 11
+#endif
+
 #pragma comment(lib, "winmm")
 
 /* Структура описания объекта анимации */
@@ -72,7 +108,7 @@ static INT type = 0, lgspeed;
 
 static VOID LogoUnitInit( as4UNIT_LOGO *Unit, as4ANIM *Ani )
 {
-  LogoRight = 1;
+  LogoRight = 0;
 } /* End of 'LogoUnitInit' function */
 
 /* Функция деинициализации объекта анимации.
@@ -282,14 +318,14 @@ static VOID InfoUnitResponse( as4UNIT_INFO *Unit, as4ANIM *Ani )
     JOYCAPS jc;
 
     /* получение общей информации о джостике */
-    if (joyGetDevCaps(JOYSTICKID1, &jc, sizeof(jc)) == JOYERR_NOERROR)
+    if (joyGetDevCaps(JOYSTICKID2, &jc, sizeof(jc)) == JOYERR_NOERROR)
     {
       JOYINFOEX ji;
 
       /* получение текущего состояния */
       ji.dwSize = sizeof(JOYCAPS);
       ji.dwFlags = JOY_RETURNALL;
-      if (joyGetPosEx(JOYSTICKID1, &ji) == JOYERR_NOERROR)
+      if (joyGetPosEx(JOYSTICKID2, &ji) == JOYERR_NOERROR)
       {
         /* Кнопки */
         memcpy(AS4_Anim.JButsOld, AS4_Anim.JButs, sizeof(AS4_Anim.JButs));
@@ -297,18 +333,18 @@ static VOID InfoUnitResponse( as4UNIT_INFO *Unit, as4ANIM *Ani )
           AS4_Anim.JButs[i] = (ji.dwButtons >> i) & 1;
         for (i = 0; i < 32; i++)
           AS4_Anim.JButsClick[i] = AS4_Anim.JButs[i] && !AS4_Anim.JButsOld[i];
-        if (AS4_Anim.JButsClick[4])
+        if (AS4_Anim.JButsClick[JBUTTON5])
           type = ((type - 1) + AS4_LOGO_COUNT) % AS4_LOGO_COUNT;
-        if (AS4_Anim.JButsClick[6])
+        if (AS4_Anim.JButsClick[JBUTTON6])
           type = (type + 1) % AS4_LOGO_COUNT;
-        if (AS4_Anim.JButsClick[0])
+        if (AS4_Anim.JButsClick[JBUTTON3])
           if (lgspeed > 0)
             lgspeed -= 5;
-        if (AS4_Anim.JButsClick[3])
+        if (AS4_Anim.JButsClick[JBUTTON2])
           lgspeed += 5;
-        if (AS4_Anim.JButsClick[5])
+        if (AS4_Anim.JButsClick[JBUTTON7])
           LogoRight = 0;
-        if (AS4_Anim.JButsClick[7])
+        if (AS4_Anim.JButsClick[JBUTTON8])
           LogoRight = 1;
         /* Оси */
         AS4_Anim.JX = AS4_GET_AXIS_VALUE(X);/*2.0 * (ji.dwXpos - jc.wXmin) / (jc.wXmax - jc.wXmin - 1) - 1;*/
@@ -331,10 +367,10 @@ static VOID InfoUnitResponse( as4UNIT_INFO *Unit, as4ANIM *Ani )
       }
     }
   }
-  cl.x += AS4_Anim.JX * 10;
-  cl.y += AS4_Anim.JY * 10;
-  lg.x += AS4_Anim.JR * lgspeed;
-  lg.y += AS4_Anim.JZ * lgspeed;
+  cl.x += AS4_Anim.JXCoord * 10;
+  cl.y += AS4_Anim.JYCoord * 10;
+  lg.x += AS4_Anim.JZCoord * lgspeed;
+  lg.y += AS4_Anim.JRCoord * lgspeed;
 } /* End of 'LogoUnitResponse' function */
 
 as4UNIT * AS4_InfoUnitCreate( VOID )

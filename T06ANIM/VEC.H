@@ -44,7 +44,10 @@ MATR MatrRotate( DBL AngleInDegree, DBL X, DBL Y, DBL Z );
 MATR MatrMulMatr( MATR M1, MATR M2 );
 MATR MatrTranspose( MATR M );
 MATR MatrInverse( MATR M );
-/* Определитель матрицы 3х3 */
+MATR MatrProjection( DBL Left, DBL Right,
+                              DBL Bottom, DBL Top,
+                              DBL Near, DBL Far );
+
 DBL MatrDeterm3x3( DBL A11, DBL A12, DBL A13,
                    DBL A21, DBL A22, DBL A23,
                    DBL A31, DBL A32, DBL A33 );
@@ -63,7 +66,5 @@ DBL VecLen( VEC V );
 VEC VecNormalize( VEC V );
 VEC PointTransform( VEC V, MATR M );
 VEC VecTransform( VEC V, MATR M );
-
-VEC VecMulMatr(VEC V, MATR M);
 
 #endif

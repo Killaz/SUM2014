@@ -43,7 +43,7 @@ extern struct {
 
 static VOID CubeUnitInit( as4UNIT_CUBE *Unit, as4ANIM *Ani )
 {
-  AS4_RndGObjLoad(&Unit->Cow, "objects\\House1.object");
+  AS4_RndGObjLoad(&Unit->Cow, "objects\\Car1.object");
 } /* End of 'CubeUnitInit' function */
 
 /* Функция обновления межкадровых параметров объекта анимации.
@@ -60,6 +60,7 @@ static VOID CubeUnitResponse( as4UNIT_CUBE *Unit, as4ANIM *Ani )
   AS4_RndWs = Ani->W;
   AS4_RndHs = Ani->H;
   AS4_RndWp = AS4_RndHp * Ani->W / Ani->H;
+  AS4_RndMatrProjection = MatrProjection(-AS4_RndWp / 2, AS4_RndWp / 2, -AS4_RndHp / 2, AS4_RndHp / 2, AS4_ProjDist, 1000.0);
 } /* End of 'CubeUnitResponse' function */
 
 /* Функция построения объекта анимации.
@@ -73,16 +74,16 @@ static VOID CubeUnitResponse( as4UNIT_CUBE *Unit, as4ANIM *Ani )
 
 static VOID CubeUnitRender( as4UNIT_CUBE *Unit, as4ANIM *Ani )
 {
-  INT i, s = 5;
   VEC p = {1, 0, 0};
-  POINT pt;
+  /*POINT pt;*/
 
   /*AS4_RndMatrView = MatrViewLookAt(VecSet(5, 5, 5), VecSet(0, 0, 0), VecSet(0, 1, 0));
   AS4_RndMatrWorld = MatrRotateY(Ani->Time * 30);*/
 
-  AS4_RndMatrView = MatrViewLookAt(VecMulMatr(VecSet(0, 0, AS4_Anim.JX + 15), MatrRotateX(-50 * AS4_Anim.JY)), VecSet(0, 0, 0), VecSet(0, 1, 0));
-  AS4_RndMatrWorld = MatrRotateY(-AS4_Anim.JX * 110/*Ani->GlobalTime * 20*/);
-  AS4_RndMatrWorld = MatrMulMatr(AS4_RndMatrWorld, MatrScale(0.30, 0.30, 0.30));
+  AS4_RndMatrView = MatrViewLookAt(VecTransform(VecSet(0, 0, 15), MatrRotateX(0)), VecSet(0, 0, 0), VecSet(0, 1, 0));
+  AS4_RndMatrWorld = MatrRotateY(-cl.x / 3.0);
+  AS4_RndMatrWorld = MatrMulMatr(AS4_RndMatrWorld, MatrRotateX(-cl.y / 3.0));
+  AS4_RndMatrWorld = MatrMulMatr(AS4_RndMatrWorld, MatrScale(3.5 - AS4_Anim.JPOV / 8.0, 3.5 - AS4_Anim.JPOV / 8.0, 3.5 - AS4_Anim.JPOV / 8.0));
 
   SelectObject(Ani->hDC, GetStockObject(NULL_PEN));
   SetDCBrushColor(Ani->hDC, RGB(0, 0, 0));

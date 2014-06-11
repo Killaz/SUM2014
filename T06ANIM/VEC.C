@@ -211,6 +211,22 @@ MATR MatrInverse( MATR M )
   return r;
 }
 
+MATR MatrProjection( DBL Left, DBL Right,
+                              DBL Bottom, DBL Top,
+                              DBL Near, DBL Far )
+{
+  MATR m =
+  {
+    {
+      {      2 * Near / (Right - Left),                               0,                              0,  0},
+      {                              0,       2 * Near / (Top - Bottom),                              0,  0},
+      {(Right + Left) / (Right - Left), (Top + Bottom) / (Top - Bottom),   -(Far + Near) / (Far - Near), -1},
+      {                              0,                               0, -2 * Near * Far / (Far - Near),  0}
+    }
+  };
+  return m;
+}
+
 DBL MatrDeterm3x3( DBL A11, DBL A12, DBL A13,
                    DBL A21, DBL A22, DBL A23,
                    DBL A31, DBL A32, DBL A33 )
@@ -330,9 +346,11 @@ VEC VecNormalize( VEC V )
 
 VEC PointTransform( VEC V, MATR M )
 {
-  return VecSet(V.x * M.A[0][0] + V.y * M.A[1][0] + V.z * M.A[2][0] + M.A[3][0],
-                V.x * M.A[0][1] + V.y * M.A[1][1] + V.z * M.A[2][1] + M.A[3][1],
-                V.x * M.A[0][2] + V.y * M.A[1][2] + V.z * M.A[2][2] + M.A[3][2]);
+  DBL w = V.x * M.A[0][3] + V.y * M.A[1][3] + V.z * M.A[2][3] + M.A[3][3];
+
+  return VecSet((V.x * M.A[0][0] + V.y * M.A[1][0] + V.z * M.A[2][0] + M.A[3][0]) / w,
+                (V.x * M.A[0][1] + V.y * M.A[1][1] + V.z * M.A[2][1] + M.A[3][1]) / w,
+                (V.x * M.A[0][2] + V.y * M.A[1][2] + V.z * M.A[2][2] + M.A[3][2]) / w);
 }
 
 VEC VecTransform( VEC V, MATR M )
@@ -342,10 +360,3 @@ VEC VecTransform( VEC V, MATR M )
                 V.x * M.A[0][2] + V.y * M.A[1][2] + V.z * M.A[2][2]);
 }
 
-VEC VecMulMatr(VEC V, MATR M)
-{
-  V.x = M.A[0][0] * V.x + M.A[0][1] * V.y + M.A[0][2] * V.z;
-  V.y = M.A[1][0] * V.x + M.A[1][1] * V.y + M.A[1][2] * V.z;
-  V.z = M.A[2][0] * V.x + M.A[2][1] * V.y + M.A[2][2] * V.z;
-  return V;
-}

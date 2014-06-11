@@ -6,7 +6,7 @@
 typedef struct
 {
   VEC Loc, Dir, Up, Right, At;
-} CAMERA;
+} as4CAMERA;
 
 typedef struct tagas4GOBJ
 {
@@ -16,7 +16,7 @@ typedef struct tagas4GOBJ
   INT NumOfF;  /* количество граней */
 } as4GOBJ;
 
-extern CAMERA AS4_RndCam;
+extern as4CAMERA AS4_RndCam;
 
 extern DBL
   AS4_RndWs, AS4_RndHs,
@@ -25,7 +25,8 @@ extern DBL
 
 extern MATR
   AS4_RndMatrWorld,
-  AS4_RndMatrView;
+  AS4_RndMatrView,
+  AS4_RndMatrProjection;
 
 MATR MatrViewLookAt( VEC Loc, VEC At, VEC UpApprox );
 POINT AS4_RndWorldToScreen( VEC P );

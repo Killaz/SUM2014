@@ -1,35 +1,26 @@
 #include <stdio.h>
 #include "RENDER.H"
 
-CAMERA AS4_RndCam;
+as4CAMERA AS4_RndCam;
 
 DBL
   AS4_RndWs = 40, AS4_RndHs = 40,
   AS4_RndWp = 4, AS4_RndHp = 3,
-  AS4_ProjDist = 0.1;
+  AS4_ProjDist = 1;
 
 MATR
   AS4_RndMatrWorld = AS4_UNITMATRIX,
-  AS4_RndMatrView = AS4_UNITMATRIX;
+  AS4_RndMatrView = AS4_UNITMATRIX,
+  AS4_RndMatrProjection = AS4_UNITMATRIX;
+static MATR
+  AS4_RndMatrWorldViewProj;
 
-MATR MatrViewLookAt( VEC Loc, VEC At, VEC UpApprox )
+VOID AS4_RndMatrSetup( VOID )
 {
-  VEC Right, Up, Dir;
-  MATR r;
-  		
-  Dir = VecNormalize(VecSubVec(At, Loc));
-  Right = VecNormalize(VecCrossVec(Dir, UpApprox));
-  Up = VecCrossVec(Right, Dir);
-
-  r.A[0][0] = Right.x; r.A[0][1] = Up.x; r.A[0][2] = -Dir.x; r.A[0][3] = 0;
-  r.A[1][0] = Right.y; r.A[1][1] = Up.y; r.A[1][2] = -Dir.y; r.A[1][3] = 0;
-  r.A[2][0] = Right.z; r.A[2][1] = Up.z; r.A[2][2] = -Dir.z; r.A[2][3] = 0;
-  r.A[3][0] = -VecDotVec(Loc, Right);
-  r.A[3][1] = -VecDotVec(Loc, Up);
-  r.A[3][2] = VecDotVec(Loc, Dir);
-  r.A[3][3] = 1;
-  return r;
-}
+  AS4_RndMatrWorldViewProj =
+    MatrMulMatr(MatrMulMatr(AS4_RndMatrWorld, AS4_RndMatrView),
+      AS4_RndMatrProjection);
+} /* End of 'AS4_RndMatrSetup' function */
 
 POINT AS4_RndWorldToScreen( VEC P )
 {
@@ -37,15 +28,11 @@ POINT AS4_RndWorldToScreen( VEC P )
   VEC Pp;
 
   /* преобразование СК */
-  Pp = /*VecMulMatr*/VecTransform(P, MatrMulMatr(AS4_RndMatrWorld, AS4_RndMatrView));
-
-  /* проецирование */
+  Pp = PointTransform(P, AS4_RndMatrWorldViewProj);
   
-  /*Pp.x *= AS4_ProjDist / Pp.z;
-  Pp.y *= AS4_ProjDist / Pp.z;*/
-
-  Ps.x = ( Pp.x + AS4_RndWp / 2) / AS4_RndWp * (AS4_RndWs - 1);
-  Ps.y = ( Pp.y + AS4_RndHp / 2) / AS4_RndHp * (AS4_RndHs - 1); /*- Pp.y ...*/
+  /* проецирование */
+  Ps.x = ( Pp.x + 0.5) * (AS4_RndWs - 1);
+  Ps.y = (-Pp.y + 0.5) * (AS4_RndHs - 1);
   return Ps;
 } /* End of 'AS4_RndWorldToScreen' function */
 
@@ -104,7 +91,7 @@ BOOL AS4_RndGObjLoad( as4GOBJ *GObj, CHAR *FileName )
     }
   }
   fclose(F);
-  return TRUE;
+  return 1;
 } /* End of 'AS4_RndGObjLoad' function */
 
 /* Функция освобождения геометрического объекта.
@@ -136,6 +123,8 @@ VOID AS4_RndGObjDraw( as4GOBJ *GObj, HDC hDC )
   if ((pts = (POINT *) malloc(sizeof(POINT) * GObj->NumOfV)) == NULL)
     return;
 
+  AS4_RndMatrSetup();
+
   for (i = 0; i < GObj->NumOfV; i++)
   {
     pts[i] = AS4_RndWorldToScreen(GObj->V[i]);
@@ -156,3 +145,23 @@ VOID AS4_RndGObjDraw( as4GOBJ *GObj, HDC hDC )
   }
   free(pts);
 } /* End of 'AS4_RndGObjDraw' function */
+
+MATR MatrViewLookAt( VEC Loc, VEC At, VEC UpApprox )
+{
+  VEC Right, Up, Dir;
+  MATR r;
+  		
+  Dir = VecNormalize(VecSubVec(At, Loc));
+  Right = VecNormalize(VecCrossVec(Dir, UpApprox));
+  Up = VecCrossVec(Right, Dir);
+
+  r.A[0][0] = Right.x; r.A[0][1] = Up.x; r.A[0][2] = -Dir.x; r.A[0][3] = 0;
+  r.A[1][0] = Right.y; r.A[1][1] = Up.y; r.A[1][2] = -Dir.y; r.A[1][3] = 0;
+  r.A[2][0] = Right.z; r.A[2][1] = Up.z; r.A[2][2] = -Dir.z; r.A[2][3] = 0;
+  r.A[3][0] = -VecDotVec(Loc, Right);
+  r.A[3][1] = -VecDotVec(Loc, Up);
+  r.A[3][2] = -VecDotVec(Loc, Dir);
+  r.A[3][3] = 1;
+  return r;
+}
+
