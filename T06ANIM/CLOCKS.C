@@ -11,11 +11,6 @@
 
 #include "anim.h"
 
-/*#define PIC_H 640
-#define PIC_W 640
-#define PIC_CX 320
-#define PIC_CY 320*/
-
 #ifndef min
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #endif

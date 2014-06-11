@@ -62,7 +62,7 @@ DBL VecLen2( VEC V );
 DBL VecLen( VEC V );
 VEC VecNormalize( VEC V );
 VEC PointTransform( VEC V, MATR M );
-VEC VectorTransform( VEC V, MATR M );
+VEC VecTransform( VEC V, MATR M );
 
 VEC VecMulMatr(VEC V, MATR M);
 

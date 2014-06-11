@@ -43,7 +43,7 @@ extern struct {
 
 static VOID CubeUnitInit( as4UNIT_CUBE *Unit, as4ANIM *Ani )
 {
-  AS4_RndGObjLoad(&Unit->Cow, "objects\\cow.object");
+  AS4_RndGObjLoad(&Unit->Cow, "objects\\House1.object");
 } /* End of 'CubeUnitInit' function */
 
 /* Функция обновления межкадровых параметров объекта анимации.
@@ -80,22 +80,13 @@ static VOID CubeUnitRender( as4UNIT_CUBE *Unit, as4ANIM *Ani )
   /*AS4_RndMatrView = MatrViewLookAt(VecSet(5, 5, 5), VecSet(0, 0, 0), VecSet(0, 1, 0));
   AS4_RndMatrWorld = MatrRotateY(Ani->Time * 30);*/
 
-  AS4_RndMatrView = MatrViewLookAt(VecMulMatr(VecSet(0, 0, AS4_Anim.JX + 15), MatrRotateX(50 * AS4_Anim.JY)), VecSet(0, 0, 0), VecSet(0, 1, 0));
-  AS4_RndMatrWorld = MatrRotateY(Ani->GlobalTime * 20);
+  AS4_RndMatrView = MatrViewLookAt(VecMulMatr(VecSet(0, 0, AS4_Anim.JX + 15), MatrRotateX(-50 * AS4_Anim.JY)), VecSet(0, 0, 0), VecSet(0, 1, 0));
+  AS4_RndMatrWorld = MatrRotateY(-AS4_Anim.JX * 110/*Ani->GlobalTime * 20*/);
   AS4_RndMatrWorld = MatrMulMatr(AS4_RndMatrWorld, MatrScale(0.30, 0.30, 0.30));
 
   SelectObject(Ani->hDC, GetStockObject(NULL_PEN));
   SetDCBrushColor(Ani->hDC, RGB(0, 0, 0));
-  srand(30);
-  for (i = 0; i < 0; i++)
-  {
-    p.x = 2.0 * rand() / RAND_MAX - 1;
-    p.y = 2.0 * rand() / RAND_MAX - 1;
-    p.z = 2.0 * rand() / RAND_MAX - 1;
-    pt = AS4_RndWorldToScreen(p);
-    Ellipse(Ani->hDC, pt.x - s, pt.y - s, pt.x + s, pt.y + s);
-  }
-   AS4_RndGObjDraw(&Unit->Cow, Ani->hDC);
+  AS4_RndGObjDraw(&Unit->Cow, Ani->hDC);
 } /* End of 'CubeUnitRender' function */
 
 /* Функция деинициализации объекта анимации.

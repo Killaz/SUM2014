@@ -335,7 +335,7 @@ VEC PointTransform( VEC V, MATR M )
                 V.x * M.A[0][2] + V.y * M.A[1][2] + V.z * M.A[2][2] + M.A[3][2]);
 }
 
-VEC VectorTransform( VEC V, MATR M )
+VEC VecTransform( VEC V, MATR M )
 {
   return VecSet(V.x * M.A[0][0] + V.y * M.A[1][0] + V.z * M.A[2][0],
                 V.x * M.A[0][1] + V.y * M.A[1][1] + V.z * M.A[2][1],

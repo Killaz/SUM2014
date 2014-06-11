@@ -12,7 +12,7 @@
 /* Максимальное количество элементов анимации */
 #define AS4_MAX_UNITS 3000
 
-#define AS4_JOYSTICK_THRESHOLD 64.0
+#define AS4_JOYSTICK_THRESHOLD 128.0
 
 /* Устранение ошибок замера джойстика */
 #define AS4_GET_AXIS_VALUE(A) \

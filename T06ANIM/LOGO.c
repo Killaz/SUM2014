@@ -11,9 +11,10 @@
 #include <time.h>
 
 #include "anim.h"
+#include "RENDER.H"
 #include <mmsystem.h>
 
-#define AS4_LOGO_COUNT 7
+#define AS4_LOGO_COUNT 9
 
 #ifndef min
 #define min(a, b) ((a) < (b) ? (a) : (b))
@@ -29,6 +30,7 @@ typedef struct tagas4UNIT_LOGO
 {
   AS4_UNIT_BASE_FIELDS; /* Включение базовых полей */
   HBITMAP hBm_AND[AS4_LOGO_COUNT], hBm_XOR[AS4_LOGO_COUNT];
+  HBITMAP hBm_AND_i[AS4_LOGO_COUNT], hBm_XOR_i[AS4_LOGO_COUNT];
 } as4UNIT_LOGO;
 
 typedef struct tagas4UNIT_INFO
@@ -54,13 +56,23 @@ struct
   BYTE
     JButs[32], JButsOld[32], JButsClick[32];
   INT JPOV;
+  BYTE mouse;
+  INT
+    MsGlobalX, MsGlobalY,
+    MsDeltaX, MsDeltaY,
+    MsX, MsY,
+    MsXOld, MsYOld,
+    MsGlobalWheel, MsWheel;
 } AS4_Anim;
 
+
 POINT lg, cl;
+static BOOL LogoRight;
 static INT type = 0, lgspeed;
 
 static VOID LogoUnitInit( as4UNIT_LOGO *Unit, as4ANIM *Ani )
 {
+  LogoRight = 1;
 } /* End of 'LogoUnitInit' function */
 
 /* Функция деинициализации объекта анимации.
@@ -115,15 +127,27 @@ static VOID LogoUnitRender( as4UNIT_LOGO *Unit, as4ANIM *Ani )
 
   hScrDC = GetDC(NULL);
   hMemDC1 = CreateCompatibleDC(hScrDC);
-  GetObject(Unit->hBm_AND[type], sizeof(bm), &bm);/**/
+  if (LogoRight)
+    GetObject(Unit->hBm_AND[type], sizeof(bm), &bm);/**/
+  else
+    GetObject(Unit->hBm_AND_i[type], sizeof(bm), &bm);/**/
 
   LGx = Aver(Ani->W - bm.bmWidth + lg.x, -256, Ani->W);
   LGy = Aver(lg.y, -256, Ani->H);
 
-  SelectObject(hMemDC1, Unit->hBm_AND[type]);
-  BitBlt(Ani->hDC, LGx, LGy, bm.bmWidth, bm.bmHeight, hMemDC1, 0, 0, SRCAND);
-  SelectObject(hMemDC1, Unit->hBm_XOR[type]);
-  BitBlt(Ani->hDC, LGx, LGy, bm.bmWidth, bm.bmHeight, hMemDC1, 0, 0, SRCINVERT);
+  if (LogoRight)
+  {
+    SelectObject(hMemDC1, Unit->hBm_AND[type]);
+    BitBlt(Ani->hDC, LGx, LGy, bm.bmWidth, bm.bmHeight, hMemDC1, 0, 0, SRCAND);
+    SelectObject(hMemDC1, Unit->hBm_XOR[type]);
+    BitBlt(Ani->hDC, LGx, LGy, bm.bmWidth, bm.bmHeight, hMemDC1, 0, 0, SRCINVERT);
+  } else
+  {
+    SelectObject(hMemDC1, Unit->hBm_AND_i[type]);
+    BitBlt(Ani->hDC, LGx, LGy, bm.bmWidth, bm.bmHeight, hMemDC1, 0, 0, SRCAND);
+    SelectObject(hMemDC1, Unit->hBm_XOR_i[type]);
+    BitBlt(Ani->hDC, LGx, LGy, bm.bmWidth, bm.bmHeight, hMemDC1, 0, 0, SRCINVERT);
+  }
 
   ReleaseDC(NULL, hScrDC);
   DeleteDC(hMemDC1);
@@ -154,6 +178,11 @@ as4UNIT * AS4_LogoUnitCreate( VOID )
     Unit->hBm_AND[i] = LoadImage(NULL, name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
     sprintf(name, "img\\YOBA_%d_xor.bmp", i);
     Unit->hBm_XOR[i] = LoadImage(NULL, name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+    sprintf(name, "img\\YOBA_%d_and_i.bmp", i);
+    Unit->hBm_AND_i[i] = LoadImage(NULL, name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    sprintf(name, "img\\YOBA_%d_xor_i.bmp", i);
+    Unit->hBm_XOR_i[i] = LoadImage(NULL, name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
   }
   return (as4UNIT *)Unit;
 } /* End of 'AS4_LogoUnitCreate' function */
@@ -172,6 +201,36 @@ static VOID InfoUnitRender( as4UNIT_INFO *Unit, as4ANIM *Ani )
  * ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ:
  *   (as4UNIT *) указатель на созданный объект анимации.
  */
+
+/* Функция обработки захваченных мышинных сообщений.
+ * АРГУМЕНТЫ:
+ *   - код захвата:
+ *       INT Code;
+ *   - параметр сообшения ('word parameter') -
+ *     код сообщения от мыши:
+ *       WPARAM wParam;
+ *   - параметр сообшения ('long parameter') -
+ *     (MSLLHOOKSTRUCT *) для мышинных сообщений;
+ *       LPARAM lParam;
+ * ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ:
+ *   (LRESULT) - в зависимости от сообщения.
+ */
+static LRESULT CALLBACK AS4_MouseHook( INT Code, WPARAM wParam, LPARAM lParam )
+{
+  MSLLHOOKSTRUCT *hs = (MSLLHOOKSTRUCT *)lParam;
+
+  switch (wParam)
+  {
+  case WM_MOUSEMOVE:
+    AS4_Anim.MsGlobalX = hs->pt.x;
+    AS4_Anim.MsGlobalY = hs->pt.y;
+    break;
+  case WM_MOUSEWHEEL:
+    AS4_Anim.MsGlobalWheel = (SHORT)HIWORD(hs->mouseData);
+    break;
+  }
+  return 0;
+} /* End of 'VG4_MouseHook' function */
 
 static VOID InfoUnitResponse( as4UNIT_INFO *Unit, as4ANIM *Ani )
 {
@@ -194,6 +253,29 @@ static VOID InfoUnitResponse( as4UNIT_INFO *Unit, as4ANIM *Ani )
     cl.x = cl.y = lg.x = lg.y = 0;
   for (i = 0; i < 256; i++)
     AS4_Anim.KeysOld[i] = AS4_Anim.Keys[i];
+
+  /* Мышь */
+  if (AS4_Anim.mouse)
+  {
+    POINT pt;
+    AS4_Anim.MsWheel = AS4_Anim.MsGlobalWheel;
+    AS4_Anim.MsGlobalWheel = 0;
+    /* абсолютная позиция */
+    pt.x = AS4_Anim.MsGlobalX;
+    pt.y = AS4_Anim.MsGlobalY;
+    ScreenToClient(Ani->hWnd, &pt);
+    AS4_Anim.MsX = pt.x;
+    AS4_Anim.MsY = pt.y;
+    /* относительное перемещение */
+    AS4_Anim.MsDeltaX = AS4_Anim.MsGlobalX - AS4_Anim.MsXOld;
+    AS4_Anim.MsDeltaY = AS4_Anim.MsGlobalY - AS4_Anim.MsYOld;
+    AS4_Anim.MsXOld = AS4_Anim.MsGlobalX;
+    AS4_Anim.MsYOld = AS4_Anim.MsGlobalY;
+    if (AS4_Anim.MsWheel > 0)
+      AS4_RndWs++, AS4_RndHs++;
+    else if (AS4_Anim.MsWheel < 0)
+      AS4_RndWs--, AS4_RndHs--;
+  }
 
   if ((i = joyGetNumDevs()) > 0)
   {
@@ -223,7 +305,11 @@ static VOID InfoUnitResponse( as4UNIT_INFO *Unit, as4ANIM *Ani )
           if (lgspeed > 0)
             lgspeed -= 5;
         if (AS4_Anim.JButsClick[3])
-            lgspeed += 5;
+          lgspeed += 5;
+        if (AS4_Anim.JButsClick[5])
+          LogoRight = 0;
+        if (AS4_Anim.JButsClick[7])
+          LogoRight = 1;
         /* Оси */
         AS4_Anim.JX = AS4_GET_AXIS_VALUE(X);/*2.0 * (ji.dwXpos - jc.wXmin) / (jc.wXmax - jc.wXmin - 1) - 1;*/
         AS4_Anim.JY = AS4_GET_AXIS_VALUE(Y);/*2.0 * (ji.dwYpos - jc.wYmin) / (jc.wYmax - jc.wYmin - 1) - 1;*/
@@ -258,6 +344,8 @@ as4UNIT * AS4_InfoUnitCreate( VOID )
   if ((Unit = AS4_AnimUnitCreate(sizeof(as4UNIT))) == NULL)
     return NULL;
   /* заполняем поля по-умолчанию */
+  //SetWindowsHookEx(WH_MOUSE_LL, AS4_MouseHook, GetModuleHandle(NULL), 0);
+  AS4_Anim.mouse = 0;
   Unit->Render = (VOID *)InfoUnitRender;
   Unit->Response = (VOID *)InfoUnitResponse;
   return Unit;
