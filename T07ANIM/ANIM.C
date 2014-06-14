@@ -358,11 +358,15 @@ VOID AS4_AnimUnitResponse( as4UNIT *Unit, as4ANIM *Ani )
           else
             Ani->JPOV = ji.dwPOV / 4500 + 1;
         }
+        if (Ani->JPOV == 3)
+          AS4_Anim.clz += 2000 * AS4_Anim.DeltaTime;
+        else if (Ani->JPOV == 7)
+          AS4_Anim.clz -= 2000 * AS4_Anim.DeltaTime;
       }
     }
   }
-
-
+  AS4_Anim.cl.x += AS4_Anim.JXCoord * 2000 * AS4_Anim.DeltaTime;
+  AS4_Anim.cl.y += AS4_Anim.JYCoord * 2000 * AS4_Anim.DeltaTime;
 } /* End of 'AS4_AnimUnitResponse' function */
 
 /* Функция переключения в/из полноэкранного режима

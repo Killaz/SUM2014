@@ -18,6 +18,6 @@ typedef struct tagas4GOBJ
 
 BOOL AS4_RndGObjLoad( as4GOBJ *GObj, CHAR *FileName );
 VOID AS4_RndGObjFree( as4GOBJ *GObj );
-VOID AS4_RndGObjDraw( as4GOBJ *GObj, HDC hDC );
+VOID AS4_RndGObjDraw( as4GOBJ *GObj );
 
 #endif

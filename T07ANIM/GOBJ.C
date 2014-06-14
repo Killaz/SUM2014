@@ -25,7 +25,7 @@ typedef struct tagas4UNIT_GOBJ
 
 static VOID GObjUnitInit( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
 {
-  AS4_RndGObjLoad(&Unit->Gobj, "objects\\Car1.object");
+  AS4_RndGObjLoad(&Unit->Gobj, "Z:\\SUM2014\\models\\Cow.object");
 } /* End of 'GObjUnitInit' function */
 
 /* Функция обновления межкадровых параметров объекта анимации.
@@ -39,8 +39,23 @@ static VOID GObjUnitInit( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
 
 static VOID GObjUnitResponse( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
 {
+} /* End of 'GObjUnitResponse' function */
+
+/* Функция построения объекта анимации.
+ * АРГУМЕНТЫ:
+ *   - указатель на "себя" - сам объект анимации:
+ *       as4UNIT_GOBJ *Unit;
+ *   - указатель на контекст анимации:
+ *       as4ANIM *Ani;
+ * ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ: Нет.
+ */
+
+static VOID GObjUnitRender( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
+{
   MATR WVP;
-  Ani->RndMatrWorld = MatrRotateY(Ani->Time * 90);
+  Ani->RndMatrWorld = MatrRotateY(-Ani->cl.x / 20.0);
+  Ani->RndMatrWorld = MatrMulMatr(MatrRotateZ(Ani->cl.y / 20.0), Ani->RndMatrWorld);
+  Ani->RndMatrWorld = MatrMulMatr(MatrRotateX(Ani->clz / 20.0), Ani->RndMatrWorld);
   Ani->RndMatrView = MatrViewLookAt(VecSet(5, 5, 5), VecSet(0, 0, 0), VecSet(0, 1, 0));
   Ani->RndMatrProjection = MatrProjection(-Ani->RndWp / 2, Ani->RndWp / 2, -Ani->RndHp / 2, Ani->RndHp / 2, Ani->ProjDist, 1000);
   WVP = MatrMulMatr(Ani->RndMatrWorld, MatrMulMatr(Ani->RndMatrView, Ani->RndMatrProjection));
@@ -55,20 +70,8 @@ static VOID GObjUnitResponse( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
     glColor3d(0.5, 0.5, 1);
     glVertex3d(0, 0, -3);
     glVertex4d(0, 0, 1, 0);
-  glEnd();  
-} /* End of 'GObjUnitResponse' function */
-
-/* Функция построения объекта анимации.
- * АРГУМЕНТЫ:
- *   - указатель на "себя" - сам объект анимации:
- *       as4UNIT_GOBJ *Unit;
- *   - указатель на контекст анимации:
- *       as4ANIM *Ani;
- * ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ: Нет.
- */
-
-static VOID GObjUnitRender( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
-{
+  glEnd();
+  AS4_RndGObjDraw(&Unit->Gobj);
 } /* End of 'GObjUnitRender' function */
 
 /* Функция деинициализации объекта анимации.
@@ -99,7 +102,7 @@ as4UNIT * AS4_GObjUnitCreate( VOID )
   /* заполняем поля по-умолчанию */
   Unit->Init = (VOID *)GObjUnitInit;
   Unit->Close = (VOID *)GObjUnitClose;
-  Unit->Response = (VOID *)GObjUnitResponse;                                                  
+  Unit->Response = (VOID *)AS4_AnimUnitResponse;
   Unit->Render = (VOID *)GObjUnitRender;
   return (as4UNIT *)Unit;
 } /* End of 'AS4_GObjUnitCreate' function */

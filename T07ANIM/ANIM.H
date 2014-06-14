@@ -70,6 +70,8 @@ typedef struct tagas4ANIM
     RndMatrWorld,
     RndMatrView,
     RndMatrProjection;
+  POINT cl, lg;
+  INT clz;
 } as4ANIM;
 
 /* Базовые поля объекта анимации:

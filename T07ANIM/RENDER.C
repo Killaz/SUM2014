@@ -79,28 +79,19 @@ VOID AS4_RndGObjFree( as4GOBJ *GObj )
  *       HDC hDC;
  * ¬Œ«¬–¿Ÿ¿≈ÃŒ≈ «Õ¿◊≈Õ»≈: ÕÂÚ.
  */
-VOID AS4_RndGObjDraw( as4GOBJ *GObj, HDC hDC )
+VOID AS4_RndGObjDraw( as4GOBJ *GObj )
 {
-  /*INT i;
+  INT i;
   
-  for (i = 0; i < GObj->NumOfV; i++)
-  {
-    pts[i] = AS4_RndWorldToScreen(GObj->V[i]);
-  }
-  SelectObject(hDC, GetStockObject(DC_BRUSH));
-  SetDCBrushColor(hDC, RGB(24, 55, 24));
-  SelectObject(hDC, GetStockObject(DC_PEN));
-  SetDCPenColor(hDC, RGB(255, 153, 24));
+  glBegin(GL_TRIANGLES);
+  glColor3d(0.8, 0.2, 0.43);
   for (i = 0; i < GObj->NumOfF; i++)
   {
     INT n0 = GObj->F[i][0], n1 = GObj->F[i][1], n2 = GObj->F[i][2];
-    MoveToEx(hDC, pts[n0].x, pts[n0].y, NULL);
-    LineTo(hDC, pts[n1].x, pts[n1].y);
-    LineTo(hDC, pts[n2].x, pts[n2].y);
-    LineTo(hDC, pts[n0].x, pts[n0].y);
-    /*Polygon(hDC, pt, 3);
+    glVertex3dv(&GObj->V[n0].x);
+    glVertex3dv(&GObj->V[n1].x);
+    glVertex3dv(&GObj->V[n2].x);
   }
-  free(pts);
-  */
+  glEnd();
 } /* End of 'AS4_RndGObjDraw' function */
 

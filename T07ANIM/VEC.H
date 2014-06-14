@@ -4,7 +4,15 @@
 #define __VEC_H_
 
 #include <math.h>
+
+#pragma warning(disable: 4244)
+
 #include <windows.h>
+#include <glew.h>
+#include <gl/gl.h>
+#include <gl/glu.h>
+#include <mmsystem.h>
+
 
 #define DEGREE2RADIANL 0.01745329251994329576L
 #define D2R(A) ((A) * (PI / 180.0))

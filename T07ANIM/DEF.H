@@ -7,14 +7,6 @@
 #ifndef __DEF_H_
 #define __DEF_H_
 
-#pragma warning(disable: 4244)
-
-#include <windows.h>
-#include <glew.h>
-#include <gl/gl.h>
-#include <gl/glu.h>
-#include <mmsystem.h>
-
 #include "VEC.H"
 
 #pragma comment(lib, "opengl32")
