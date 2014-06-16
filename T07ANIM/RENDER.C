@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include "RENDER.H"
+#include "ANIM.H"
+
+extern as4ANIM AS4_Anim;
 
 BOOL AS4_RndGObjLoad( as4GOBJ *GObj, CHAR *FileName )
 {
@@ -82,15 +85,19 @@ VOID AS4_RndGObjFree( as4GOBJ *GObj )
 VOID AS4_RndGObjDraw( as4GOBJ *GObj )
 {
   INT i;
-  
+
+  if (AS4_Anim.PolMode)
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  else
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glBegin(GL_TRIANGLES);
-  glColor3d(0.8, 0.2, 0.43);
+  glColor3d(1, 0.6, 0.09375);
   for (i = 0; i < GObj->NumOfF; i++)
   {
     INT n0 = GObj->F[i][0], n1 = GObj->F[i][1], n2 = GObj->F[i][2];
-    glVertex3dv(&GObj->V[n0].x);
-    glVertex3dv(&GObj->V[n1].x);
-    glVertex3dv(&GObj->V[n2].x);
+    glVertex3fv(&GObj->V[n0].x);
+    glVertex3fv(&GObj->V[n1].x);
+    glVertex3fv(&GObj->V[n2].x);
   }
   glEnd();
 } /* End of 'AS4_RndGObjDraw' function */

@@ -26,12 +26,12 @@ typedef double DBL;
 
 typedef struct tagVEC
 {
-  DBL x, y, z;
+  FLT x, y, z;
 } VEC;
 
 typedef struct tagMATR
 {
-  DBL A[4][4];
+  FLT A[4][4];
 } MATR;
 
 extern long double AS4_MultiplierDegree2Radian;
@@ -49,35 +49,35 @@ extern MATR AS4_UnitMatrix;
   }                    \
 }
 
-MATR MatrTranslate( DBL Dx, DBL Dy, DBL Dz );
+MATR MatrTranslate( FLT Dx, FLT Dy, FLT Dz );
 MATR MatrIdenity( VOID );
-MATR MatrScale( DBL Sx, DBL Sy, DBL Sz );
-MATR MatrRotateX( DBL AngleInDegree );
-MATR MatrRotateY( DBL AngleInDegree );
-MATR MatrRotateZ(DBL AngleInDegree );
-MATR MatrRotate( DBL AngleInDegree, DBL X, DBL Y, DBL Z );
+MATR MatrScale( FLT Sx, FLT Sy, FLT Sz );
+MATR MatrRotateX( FLT AngleInDegree );
+MATR MatrRotateY( FLT AngleInDegree );
+MATR MatrRotateZ(FLT AngleInDegree );
+MATR MatrRotate( FLT AngleInDegree, FLT X, FLT Y, FLT Z );
 MATR MatrMulMatr( MATR M1, MATR M2 );
 MATR MatrTranspose( MATR M );
 MATR MatrInverse( MATR M );
-MATR MatrProjection( DBL Left, DBL Right,
-                              DBL Bottom, DBL Top,
-                              DBL Near, DBL Far );
+MATR MatrProjection( FLT Left, FLT Right,
+                              FLT Bottom, FLT Top,
+                              FLT Near, FLT Far );
 
-DBL MatrDeterm3x3( DBL A11, DBL A12, DBL A13,
-                   DBL A21, DBL A22, DBL A23,
-                   DBL A31, DBL A32, DBL A33 );
-DBL MatrDeterm( MATR M );
+FLT MatrDeterm3x3( FLT A11, FLT A12, FLT A13,
+                   FLT A21, FLT A22, FLT A23,
+                   FLT A31, FLT A32, FLT A33 );
+FLT MatrDeterm( MATR M );
 
-VEC VecSet( DBL x, DBL y, DBL z );
+VEC VecSet( FLT x, FLT y, FLT z );
 VEC VecAddVec( VEC V1, VEC V2 );
 VEC VecSubVec( VEC V1, VEC V2 );
-VEC VecMulNum( VEC V, DBL n );
-VEC VecDivNum( VEC V, DBL n );
+VEC VecMulNum( VEC V, FLT n );
+VEC VecDivNum( VEC V, FLT n );
 VEC VecNeg( VEC V );
-DBL VecDotVec( VEC V1, VEC V2 );
+FLT VecDotVec( VEC V1, VEC V2 );
 VEC VecCrossVec( VEC V1, VEC V2 );
-DBL VecLen2( VEC V );
-DBL VecLen( VEC V );
+FLT VecLen2( VEC V );
+FLT VecLen( VEC V );
 VEC VecNormalize( VEC V );
 VEC PointTransform( VEC V, MATR M );
 VEC VecTransform( VEC V, MATR M );

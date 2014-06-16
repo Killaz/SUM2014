@@ -118,7 +118,8 @@ LRESULT CALLBACK MainWindowFunc( HWND hWnd, UINT Msg,
     return 0;
   case WM_CREATE:
     SetTimer(hWnd, 4, 100, NULL);
-    AS4_AnimInit(hWnd);
+    if (!AS4_AnimInit(hWnd))
+      return -1;
     return 0;
   case WM_SIZE:
     AS4_AnimResize(LOWORD(lParam), HIWORD(lParam));

@@ -53,13 +53,18 @@ static VOID GObjUnitResponse( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
 static VOID GObjUnitRender( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
 {
   MATR WVP;
-  Ani->RndMatrWorld = MatrRotateY(-Ani->cl.x / 20.0);
+  /*Ani->RndMatrWorld = MatrRotateY(-Ani->cl.x / 20.0);
   Ani->RndMatrWorld = MatrMulMatr(MatrRotateZ(Ani->cl.y / 20.0), Ani->RndMatrWorld);
-  Ani->RndMatrWorld = MatrMulMatr(MatrRotateX(Ani->clz / 20.0), Ani->RndMatrWorld);
-  Ani->RndMatrView = MatrViewLookAt(VecSet(5, 5, 5), VecSet(0, 0, 0), VecSet(0, 1, 0));
+  Ani->RndMatrWorld = MatrMulMatr(MatrRotateX(Ani->clz / 20.0), Ani->RndMatrWorld);*/
+  Ani->RndMatrWorld = MatrScale(0.5, 0.5, 0.5);
+
+  Ani->RndMatrView = MatrViewLookAt(VecSet(Ani->viewfrom.x, Ani->viewfrom.y, Ani->viewfrom.z), VecSet(Ani->viewto.x, Ani->viewto.y, Ani->viewto.z), VecSet(0, 1, 0));
+  Ani->RndMatrView = MatrMulMatr(MatrRotateY(-Ani->cl.x), Ani->RndMatrView);
+  Ani->RndMatrView = MatrMulMatr(MatrRotateX(Ani->cl.z), Ani->RndMatrView);
+  Ani->RndMatrView = MatrMulMatr(MatrRotateZ(-Ani->cl.y), Ani->RndMatrView);
   Ani->RndMatrProjection = MatrProjection(-Ani->RndWp / 2, Ani->RndWp / 2, -Ani->RndHp / 2, Ani->RndHp / 2, Ani->ProjDist, 1000);
   WVP = MatrMulMatr(Ani->RndMatrWorld, MatrMulMatr(Ani->RndMatrView, Ani->RndMatrProjection));
-  glLoadMatrixd(WVP.A[0]);
+  glLoadMatrixf(WVP.A[0]);
   glBegin(GL_LINES);
     glColor3d(1, 0.5, 0.5);
     glVertex3d(-3, 0, 0);

@@ -14,7 +14,7 @@ MATR AS4_UnitMatrix =
   }
 };
 
-MATR MatrTranslate( DBL Dx, DBL Dy, DBL Dz )
+MATR MatrTranslate( FLT Dx, FLT Dy, FLT Dz )
 {
   MATR A =
   {
@@ -34,7 +34,7 @@ MATR MatrIdenity( VOID )
   return AS4_UnitMatrix;
 }
 
-MATR MatrScale( DBL Sx, DBL Sy, DBL Sz )
+MATR MatrScale( FLT Sx, FLT Sy, FLT Sz )
 {
   MATR m = AS4_UnitMatrix;
 
@@ -44,9 +44,9 @@ MATR MatrScale( DBL Sx, DBL Sy, DBL Sz )
   return m;
 }
 
-MATR MatrRotateX( DBL AngleInDegree )
+MATR MatrRotateX( FLT AngleInDegree )
 {
-  DBL sine, cosine;
+  FLT sine, cosine;
   MATR m = AS4_UNITMATRIX;
 
   __asm {
@@ -64,9 +64,9 @@ MATR MatrRotateX( DBL AngleInDegree )
   return m;
 }
 
-MATR MatrRotateY( DBL AngleInDegree )
+MATR MatrRotateY( FLT AngleInDegree )
 {
-  DBL sine, cosine;
+  FLT sine, cosine;
   MATR m = AS4_UNITMATRIX;
 
   __asm {
@@ -83,9 +83,9 @@ MATR MatrRotateY( DBL AngleInDegree )
   return m;
 }
 
-MATR MatrRotateZ( DBL AngleInDegree )
+MATR MatrRotateZ( FLT AngleInDegree )
 {
-  DBL sine, cosine;
+  FLT sine, cosine;
   MATR m = AS4_UNITMATRIX;
 
   __asm {
@@ -102,9 +102,9 @@ MATR MatrRotateZ( DBL AngleInDegree )
   return m;
 }
 
-MATR MatrRotate( DBL AngleInDegree, DBL X, DBL Y, DBL Z )
+MATR MatrRotate( FLT AngleInDegree, FLT X, FLT Y, FLT Z )
 {
-  DBL sine, cosine, len;
+  FLT sine, cosine, len;
   MATR m;
 
   __asm {
@@ -182,7 +182,7 @@ MATR MatrTranspose( MATR M )
 MATR MatrInverse( MATR M )
 {
   MATR r;
-  DBL det = MatrDeterm(M);
+  FLT det = MatrDeterm(M);
   INT i, j;
   INT perm[4][3] =
   {
@@ -211,9 +211,9 @@ MATR MatrInverse( MATR M )
   return r;
 }
 
-MATR MatrProjection( DBL Left, DBL Right,
-                              DBL Bottom, DBL Top,
-                              DBL Near, DBL Far )
+MATR MatrProjection( FLT Left, FLT Right,
+                              FLT Bottom, FLT Top,
+                              FLT Near, FLT Far )
 {
   MATR m =
   {
@@ -227,15 +227,15 @@ MATR MatrProjection( DBL Left, DBL Right,
   return m;
 }
 
-DBL MatrDeterm3x3( DBL A11, DBL A12, DBL A13,
-                   DBL A21, DBL A22, DBL A23,
-                   DBL A31, DBL A32, DBL A33 )
+FLT MatrDeterm3x3( FLT A11, FLT A12, FLT A13,
+                   FLT A21, FLT A22, FLT A23,
+                   FLT A31, FLT A32, FLT A33 )
 {
   return A11 * A22 * A33 + A12 * A23 * A31 + A13 * A21 * A32
         -A11 * A23 * A32 - A12 * A21 * A33 - A13 * A22 * A31;
 }
 
-DBL MatrDeterm( MATR M )
+FLT MatrDeterm( MATR M )
 {
   return
     M.A[0][0] * MatrDeterm3x3(M.A[1][1], M.A[1][2], M.A[1][3],
@@ -253,7 +253,7 @@ DBL MatrDeterm( MATR M )
 }
 
 
-VEC VecSet( DBL x, DBL y, DBL z )
+VEC VecSet( FLT x, FLT y, FLT z )
 {
   VEC V;
   V.x = x;
@@ -278,7 +278,7 @@ VEC VecSubVec( VEC V1, VEC V2 )
   return V1;
 }
 
-VEC VecMulNum( VEC V, DBL n )
+VEC VecMulNum( VEC V, FLT n )
 {
   V.x *= n;
   V.y *= n;
@@ -287,7 +287,7 @@ VEC VecMulNum( VEC V, DBL n )
   return V;     
 }
 
-VEC VecDivNum( VEC V, DBL n )
+VEC VecDivNum( VEC V, FLT n )
 {
   if (n != 0)
   {
@@ -307,7 +307,7 @@ VEC VecNeg( VEC V )
   return V;
 }
 
-DBL VecDotVec( VEC V1, VEC V2 )
+FLT VecDotVec( VEC V1, VEC V2 )
 {
   return V1.x * V2.x + V1.y * V2.y + V1.z * V2.z;
 }
@@ -319,19 +319,19 @@ VEC VecCrossVec( VEC V1, VEC V2 )
                 V1.x * V2.y - V1.y * V2.x);
 }
 
-DBL VecLen2( VEC V )
+FLT VecLen2( VEC V )
 {
   return sqr(V.x) + sqr(V.y) + sqr(V.z);
 }
 
-DBL VecLen( VEC V )
+FLT VecLen( VEC V )
 {
   return sqrt(sqr(V.x) + sqr(V.y) + sqr(V.z));
 }
 
 VEC VecNormalize( VEC V )
 {
-  DBL len = sqr(V.x) + sqr(V.y) + sqr(V.z);
+  FLT len = sqr(V.x) + sqr(V.y) + sqr(V.z);
 
   if (len != 0 && len != 1)
   {
@@ -346,7 +346,7 @@ VEC VecNormalize( VEC V )
 
 VEC PointTransform( VEC V, MATR M )
 {
-  DBL w = V.x * M.A[0][3] + V.y * M.A[1][3] + V.z * M.A[2][3] + M.A[3][3];
+  FLT w = V.x * M.A[0][3] + V.y * M.A[1][3] + V.z * M.A[2][3] + M.A[3][3];
 
   return VecSet((V.x * M.A[0][0] + V.y * M.A[1][0] + V.z * M.A[2][0] + M.A[3][0]) / w,
                 (V.x * M.A[0][1] + V.y * M.A[1][1] + V.z * M.A[2][1] + M.A[3][1]) / w,

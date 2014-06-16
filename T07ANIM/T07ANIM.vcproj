@@ -41,6 +41,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="-DSAITEK"
 				Optimization="0"
 				AdditionalIncludeDirectories="X:\TGRKIT\INCLUDE;$(CG_INC_PATH);$(DXSDK_DIR)\Include;"
 				PreprocessorDefinitions="_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_WINDOWS"
@@ -184,7 +185,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GEOM.H"
+				>
+			</File>
+			<File
 				RelativePath=".\main.c"
+				>
+			</File>
+			<File
+				RelativePath=".\SHADER.C"
+				>
+			</File>
+			<File
+				RelativePath=".\SHADER.H"
 				>
 			</File>
 			<Filter
