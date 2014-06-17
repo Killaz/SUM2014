@@ -54,7 +54,7 @@ typedef struct tagas4ANIM
     JButs[32], JButsOld[32], JButsClick[32];
   INT JPOV;
   BYTE mouse;
-  BOOL PolMode;
+  BOOL PolMode, mute;
   INT
     MsGlobalX, MsGlobalY,
     MsDeltaX, MsDeltaY,
@@ -72,7 +72,10 @@ typedef struct tagas4ANIM
     RndMatrView,
     RndMatrProjection;
   VEC viewto, viewfrom, cl, lg;
+  INT movecoef;
 } as4ANIM;
+
+extern as4ANIM AS4_Anim;
 
 /* Базовые поля объекта анимации:
  * - размер структуры для наследования

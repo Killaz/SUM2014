@@ -10,9 +10,9 @@
 #include "def.h"
 
 /* Функция инициализации шейдерной программы */
-UINT SS3_ShadProgInit( CHAR *VSFileName, CHAR *FSFileName );
+UINT AS4_ShadProgInit( CHAR *VSFileName, CHAR *FSFileName );
 
 /* Функция удаления шейдерной программы */
-VOID SS3_ShadProgClose( UINT ProgId );
+VOID AS4_ShadProgClose( UINT ProgId );
 
 #endif

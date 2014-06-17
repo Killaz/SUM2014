@@ -1,5 +1,8 @@
 #include "RENDER.H"
 
+#ifndef __GEOM_H_
+#define __GEOM_H_
+
 /***
  * Работа с геометрическими объектами
  ***/
@@ -19,6 +22,31 @@ __inline as4UV AS4_UVSet( FLT U, FLT V )
   uv.V = V;
   return uv;
 } /* End of 'AS4_UVSet' function */
+
+typedef struct tagCOLOR
+{
+  FLT r, g, b, a;
+} COLOR;
+
+__inline COLOR ColorSet( FLT r, FLT g, FLT b )
+{
+  COLOR c;
+  c.r = r;
+  c.g = g;
+  c.b = b;
+  c.a = 1;
+  return c;
+}
+
+__inline COLOR ColorSeta( FLT r, FLT g, FLT b, FLT a )
+{
+  COLOR c;
+  c.r = r;
+  c.g = g;
+  c.b = b;
+  c.a = a;
+  return c;
+}
 
 /* Теп представления вершины */
 typedef struct tagas4VERTEX
@@ -111,3 +139,4 @@ VOID AS4_GeomDraw( as4GEOM *G );
 /* Функция загрузки геометрического объекта */
 BOOL AS4_GeomLoad( as4GEOM *G, CHAR *FileName );
 
+#endif

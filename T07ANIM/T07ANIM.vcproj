@@ -189,7 +189,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GEOMHAND.C"
+				>
+			</File>
+			<File
+				RelativePath=".\GEOMLOAD.C"
+				>
+			</File>
+			<File
 				RelativePath=".\main.c"
+				>
+			</File>
+			<File
+				RelativePath=".\PRIM.C"
 				>
 			</File>
 			<File

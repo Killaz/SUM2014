@@ -12,6 +12,7 @@ typedef struct tagas4UNIT_GOBJ
 {
   AS4_UNIT_BASE_FIELDS; /* Включение базовых полей */
   as4GOBJ Gobj;
+  as4GEOM Obj;
 } as4UNIT_GOBJ;
 
 /* Функция инициализации объекта анимации.
@@ -25,7 +26,8 @@ typedef struct tagas4UNIT_GOBJ
 
 static VOID GObjUnitInit( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
 {
-  AS4_RndGObjLoad(&Unit->Gobj, "Z:\\SUM2014\\models\\Cow.object");
+  //AS4_GeomLoad(&Unit->Obj, "Z:\\SUM2014\\models\\Cow.object");
+  AS4_GeomLoad(&Unit->Obj, "E:\\SPR04\\Models\\x6\\x6.object");
 } /* End of 'GObjUnitInit' function */
 
 /* Функция обновления межкадровых параметров объекта анимации.
@@ -50,7 +52,9 @@ static VOID GObjUnitResponse( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
  * ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ: Нет.
  */
 
-static VOID GObjUnitRender( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
+UINT AS4_ShaderProg;
+
+static VOID GObjUnitRender0( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
 {
   MATR WVP;
   /*Ani->RndMatrWorld = MatrRotateY(-Ani->cl.x / 20.0);
@@ -59,6 +63,7 @@ static VOID GObjUnitRender( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
   Ani->RndMatrWorld = MatrScale(0.5, 0.5, 0.5);
 
   Ani->RndMatrView = MatrViewLookAt(VecSet(Ani->viewfrom.x, Ani->viewfrom.y, Ani->viewfrom.z), VecSet(Ani->viewto.x, Ani->viewto.y, Ani->viewto.z), VecSet(0, 1, 0));
+  Ani->RndMatrView = MatrMulMatr(MatrRotateY(0), Ani->RndMatrView);
   Ani->RndMatrView = MatrMulMatr(MatrRotateY(-Ani->cl.x), Ani->RndMatrView);
   Ani->RndMatrView = MatrMulMatr(MatrRotateX(Ani->cl.z), Ani->RndMatrView);
   Ani->RndMatrView = MatrMulMatr(MatrRotateZ(-Ani->cl.y), Ani->RndMatrView);
@@ -78,6 +83,72 @@ static VOID GObjUnitRender( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
   glEnd();
   AS4_RndGObjDraw(&Unit->Gobj);
 } /* End of 'GObjUnitRender' function */
+
+static VOID GObjUnitRender( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
+{
+  INT i;
+  MATR WVP;
+  static DBL time;
+
+  /* оси и позиция наблюдателя */
+  /*Ani->RndMatrView = MatrViewLookAt(
+      PointTransform(VecSet(Ani->viewfrom.x, Ani->viewfrom.y, Ani->viewfrom.z), MatrRotateX(Ani->cl.z)),
+      PointTransform(VecSet(Ani->viewto.x, Ani->viewto.y, Ani->viewto.z), MatrRotateY(Ani->cl.x)),
+      PointTransform(VecSet(0, 1, 0), MatrRotateZ(Ani->cl.y)));*/
+
+  Ani->RndMatrWorld = MatrScale(0.5, 0.5, 0.5);
+
+  Ani->RndMatrView = MatrViewLookAt(VecSet(Ani->viewfrom.x, Ani->viewfrom.y, Ani->viewfrom.z), VecSet(Ani->viewto.x, Ani->viewto.y, Ani->viewto.z), VecSet(0, 1, 0));
+  Ani->RndMatrView = MatrMulMatr(MatrRotateY(-Ani->cl.x), Ani->RndMatrView);
+  Ani->RndMatrView = MatrMulMatr(MatrRotateX(Ani->cl.z), Ani->RndMatrView);
+  Ani->RndMatrView = MatrMulMatr(MatrRotateZ(-Ani->cl.y), Ani->RndMatrView);
+  Ani->RndMatrProjection = MatrProjection(-Ani->RndWp / 2, Ani->RndWp / 2, -Ani->RndHp / 2, Ani->RndHp / 2, Ani->ProjDist, 1000);
+
+  WVP = MatrMulMatr(Ani->RndMatrWorld, MatrMulMatr(Ani->RndMatrView, Ani->RndMatrProjection));
+  glLoadMatrixf(WVP.A[0]);
+
+  glLineWidth(1);
+  glBegin(GL_LINES);
+    glColor3d(1, 0.5, 0.5);
+    glVertex3d(-3, 0, 0);
+    glVertex4d(1, 0, 0, 0);
+    glColor3d(0.5, 1, 0.5);
+    glVertex3d(0, -3, 0);
+    glVertex4d(0, 1, 0, 0);
+    glColor3d(0.5, 0.5, 1);
+    glVertex3d(0, 0, -3);
+    glVertex4d(0, 0, 1, 0);
+  glEnd();
+  glColorMask(1, 1, 1, 0);
+  for (i = -3; i < 30; i++)
+  {
+    glBegin(GL_TRIANGLE_STRIP);
+    glVertex3d(-0.1, -0.1, i);
+    glVertex3d(-0.1,  0.1, i);
+    glVertex3d( 0.1, -0.1, i);
+    glVertex3d( 0.1,  0.1, i);
+    glEnd();
+  }
+
+  /* Рисуем примитивы */
+  time += Ani->GlobalDeltaTime;
+  if (time > 1)
+  {
+    time = 0;
+    AS4_ShadProgClose(AS4_ShaderProg);
+    AS4_ShaderProg = AS4_ShadProgInit("a.vert", "a.frag");
+  }
+
+
+  glLineWidth(1);
+  if (Ani->PolMode)
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  else
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+  //Ani->RndMatrWorld = MatrMulMatr(MatrRotateX(-90), MatrTranslate(0, 0, 0.30 * sin(Ani->Time)));
+  AS4_GeomDraw(&Unit->Obj);
+}
 
 /* Функция деинициализации объекта анимации.
  * АРГУМЕНТЫ:

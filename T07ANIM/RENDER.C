@@ -2,7 +2,6 @@
 #include "RENDER.H"
 #include "ANIM.H"
 
-extern as4ANIM AS4_Anim;
 
 BOOL AS4_RndGObjLoad( as4GOBJ *GObj, CHAR *FileName )
 {

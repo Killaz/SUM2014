@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "ANIM.H"
 #include "shader.h"
 
 /* Функция загрузки текстового файла в память.
@@ -61,9 +62,15 @@ UINT AS4_ShadProgInit( CHAR *VSFileName, CHAR *FSFileName )
 
   /* Инициализируем вершинный шейдер */
   if ((txt = LoadFile(VSFileName)) == NULL)
+  {
+    if (!AS4_Anim.mute)
+      Beep(800, 500);
     return 0;
+  }
   if ((shv = glCreateShader(GL_VERTEX_SHADER)) == 0)
   {
+    if (!AS4_Anim.mute)
+      Beep(800, 500);
     free(txt);
     return 0;
   }
@@ -75,6 +82,8 @@ UINT AS4_ShadProgInit( CHAR *VSFileName, CHAR *FSFileName )
   glGetShaderiv(shv, GL_COMPILE_STATUS, &res);
   if (res != 1)
   {
+    if (!AS4_Anim.mute)
+      Beep(800, 500);
     glGetShaderInfoLog(shv, sizeof(Buf), &len, Buf);
     glDeleteShader(shv);
     return 0;
@@ -83,11 +92,15 @@ UINT AS4_ShadProgInit( CHAR *VSFileName, CHAR *FSFileName )
   /* Инициализируем фрагментный шейдер */
   if ((txt = LoadFile(FSFileName)) == NULL)
   {
+    if (!AS4_Anim.mute)
+      Beep(800, 500);
     glDeleteShader(shv);
     return 0;
   }
   if ((shf = glCreateShader(GL_FRAGMENT_SHADER)) == 0)
   {
+    if (!AS4_Anim.mute)
+      Beep(800, 500);
     glDeleteShader(shv);
     free(txt);
     return 0;
@@ -100,6 +113,8 @@ UINT AS4_ShadProgInit( CHAR *VSFileName, CHAR *FSFileName )
   glGetShaderiv(shf, GL_COMPILE_STATUS, &res);
   if (res != 1)
   {
+    if (!AS4_Anim.mute)
+      Beep(800, 500);
     glGetShaderInfoLog(shf, sizeof(Buf), &len, Buf);
     glDeleteShader(shf);
     glDeleteShader(shv);
@@ -109,6 +124,8 @@ UINT AS4_ShadProgInit( CHAR *VSFileName, CHAR *FSFileName )
   /* Инициализируем программу - набор шейдеров */
   if ((prg = glCreateProgram()) == 0)
   {
+    if (!AS4_Anim.mute)
+      Beep(1000, 500);
     glDeleteShader(shf);
     glDeleteShader(shv);
     return 0;
@@ -122,6 +139,8 @@ UINT AS4_ShadProgInit( CHAR *VSFileName, CHAR *FSFileName )
   glGetProgramiv(prg, GL_LINK_STATUS, &res);
   if (res != 1)
   {
+    if (!AS4_Anim.mute)
+      Beep(1000, 500);
     glGetProgramInfoLog(prg, sizeof(Buf), &len, Buf);
     glDetachShader(prg, shv);
     glDetachShader(prg, shf);

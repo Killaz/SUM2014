@@ -80,6 +80,8 @@ BOOL AS4_AnimInit( HWND hWnd )
   AS4_Anim.FarClip = 1000;
   AS4_Anim.viewfrom.x = AS4_Anim.viewfrom.y = AS4_Anim.viewfrom.z = 5;
   AS4_Anim.PolMode = 1;
+  AS4_Anim.movecoef = 30;
+  AS4_Anim.mute = 1;
 
   /*** Инициализация OpenGL ***/
 
@@ -110,6 +112,7 @@ BOOL AS4_AnimInit( HWND hWnd )
 
   /* Параметры OpenGL по-умолчанию */
   glEnable(GL_DEPTH_TEST);
+  glClearColor(0.3, 0.5, 0.7, 1);
 
   /* инициализируем таймер */
   QueryPerformanceFrequency(&li);
@@ -155,7 +158,7 @@ VOID AS4_AnimClose( VOID )
  */
 VOID AS4_AnimResize( INT W, INT H )
 {
-  DBL Size = 1, ratio_x = 1, ratio_y = 1;
+  DBL ratio_x = 1, ratio_y = 1;
   AS4_Anim.W = W;
   AS4_Anim.H = H;
   glViewport(0, 0, W, H);
@@ -167,8 +170,8 @@ VOID AS4_AnimResize( INT W, INT H )
   AS4_Anim.RndWp = AS4_Anim.ProjSize * ratio_x;
   AS4_Anim.RndHp = AS4_Anim.ProjSize * ratio_y;
   AS4_Anim.RndMatrProjection = MatrProjection(-AS4_Anim.RndWp / 2, AS4_Anim.RndWp / 2,
-                                           -AS4_Anim.RndHp / 2, AS4_Anim.RndHp / 2,
-                                            AS4_Anim.ProjDist, AS4_Anim.FarClip);
+                                              -AS4_Anim.RndHp / 2, AS4_Anim.RndHp / 2,
+                                               AS4_Anim.ProjDist, AS4_Anim.FarClip);
 } /* End of 'AS4_AnimResize' function */
 
 /* Функция добавления в систему объекта анимации.
@@ -290,29 +293,35 @@ VOID AS4_AnimUnitResponse( as4UNIT *Unit, as4ANIM *Ani )
     Ani->KeysOld[i] = Ani->Keys[i];
 
   if (Ani->Keys[VK_NUMPAD2])
-    Ani->viewto.x += 30 * Ani->DeltaTime, Ani->viewfrom.x += 30 * Ani->DeltaTime;
+    Ani->viewto.x += Ani->movecoef * Ani->DeltaTime, Ani->viewfrom.x += Ani->movecoef * Ani->DeltaTime;
   else if (Ani->Keys[VK_NUMPAD8])
-    Ani->viewto.x -= 30 * Ani->DeltaTime, Ani->viewfrom.x -= 30 * Ani->DeltaTime;
+    Ani->viewto.x -= Ani->movecoef * Ani->DeltaTime, Ani->viewfrom.x -= Ani->movecoef * Ani->DeltaTime;
   if (Ani->Keys[VK_NUMPAD6])
-    Ani->viewto.z -= 30 * Ani->DeltaTime, Ani->viewfrom.z -= 30 * Ani->DeltaTime;
+    Ani->viewto.z -= Ani->movecoef * Ani->DeltaTime, Ani->viewfrom.z -= Ani->movecoef * Ani->DeltaTime;
   else if (Ani->Keys[VK_NUMPAD4])
-    Ani->viewto.z += 30 * Ani->DeltaTime, Ani->viewfrom.z += 30 * Ani->DeltaTime;
+    Ani->viewto.z += Ani->movecoef * Ani->DeltaTime, Ani->viewfrom.z += Ani->movecoef * Ani->DeltaTime;
   if (Ani->Keys[VK_NUMPAD9])
-    Ani->viewto.y += 30 * Ani->DeltaTime, Ani->viewfrom.y += 30 * Ani->DeltaTime;
+    Ani->viewto.y += Ani->movecoef * Ani->DeltaTime, Ani->viewfrom.y += Ani->movecoef * Ani->DeltaTime;
   else if (Ani->Keys[VK_NUMPAD3])
-    Ani->viewto.y -= 30 * Ani->DeltaTime, Ani->viewfrom.y -= 30 * Ani->DeltaTime;
+    Ani->viewto.y -= Ani->movecoef * Ani->DeltaTime, Ani->viewfrom.y -= Ani->movecoef * Ani->DeltaTime;
+  if (Ani->KeysClick[VK_NUMPAD7])
+    Ani->movecoef += 5;
+  else if (Ani->KeysClick[VK_NUMPAD1])
+    if (Ani->movecoef > 0)
+      Ani->movecoef -= 5;
+    else
+      Ani->movecoef = 0;
 
   if (Ani->KeysClick[VK_MULTIPLY])
     Ani->viewfrom.x = Ani->viewfrom.y = Ani->viewfrom.z = 5, Ani->viewto.x = Ani->viewto.y = Ani->viewto.z = 0;
-  if (Ani->KeysClick[VK_ADD])
-    Ani->viewfrom.x++, Ani->viewfrom.y++, Ani->viewfrom.z++;
-  if (Ani->KeysClick[VK_SUBTRACT])
-    Ani->viewfrom.x--, Ani->viewfrom.y--, Ani->viewfrom.z--;
   if (Ani->KeysClick['Q'])
     Ani->PolMode = !Ani->PolMode;
   if (Ani->KeysClick[VK_DIVIDE])
     Ani->cl.x = Ani->cl.y = Ani->cl.z = Ani->lg.x = Ani->lg.y = Ani->lg.z = 0;
-  if (Ani->KeysClick[VK_NUMPAD0])
+  if (Ani->Keys[VK_NUMPAD5])
+    Ani->mute = 0;
+  else
+    Ani->mute = 1;
 
   /* Мышь */
   if (Ani->mouse)
@@ -366,6 +375,8 @@ VOID AS4_AnimUnitResponse( as4UNIT *Unit, as4ANIM *Ani )
           LogoRight = 0;
         if (Ani->JButsClick[JBUTTON8])
           LogoRight = 1;*/
+        if (Ani->JButsClick[JBUTTON4])
+          Ani->PolMode = !Ani->PolMode;
         /* Оси */
         Ani->JX = AS4_GET_AXIS_VALUE(X);/*2.0 * (ji.dwXpos - jc.wXmin) / (jc.wXmax - jc.wXmin - 1) - 1;*/
         Ani->JY = AS4_GET_AXIS_VALUE(Y);/*2.0 * (ji.dwYpos - jc.wYmin) / (jc.wYmax - jc.wYmin - 1) - 1;*/
@@ -384,15 +395,26 @@ VOID AS4_AnimUnitResponse( as4UNIT *Unit, as4ANIM *Ani )
           else
             Ani->JPOV = ji.dwPOV / 4500 + 1;
         }
-        if (Ani->JPOV == 3)
+        /*if (Ani->JPOV == 3)
           AS4_Anim.cl.z += 100 * AS4_Anim.DeltaTime;
         else if (Ani->JPOV == 7)
-          AS4_Anim.cl.z -= 100 * AS4_Anim.DeltaTime;
+          AS4_Anim.cl.z -= 100 * AS4_Anim.DeltaTime;*/
       }
     }
   }
   AS4_Anim.cl.x += AS4_Anim.JXCoord * 100 * AS4_Anim.DeltaTime;
   AS4_Anim.cl.y += AS4_Anim.JYCoord * 100 * AS4_Anim.DeltaTime;
+  AS4_Anim.cl.z += AS4_Anim.JZCoord * 100 * AS4_Anim.DeltaTime;
+  if (Ani->viewfrom.x > 0)
+    Ani->viewfrom.x += AS4_Anim.JRCoord * 5 * AS4_Anim.DeltaTime,
+    Ani->viewfrom.y += AS4_Anim.JRCoord * 5 * AS4_Anim.DeltaTime,
+    Ani->viewfrom.z += AS4_Anim.JRCoord * 5 * AS4_Anim.DeltaTime;
+  else if (Ani->JRCoord > 0)
+      Ani->viewfrom.x += AS4_Anim.JRCoord * 5 * AS4_Anim.DeltaTime,
+      Ani->viewfrom.y += AS4_Anim.JRCoord * 5 * AS4_Anim.DeltaTime,
+      Ani->viewfrom.z += AS4_Anim.JRCoord * 5 * AS4_Anim.DeltaTime;
+    else
+      Ani->viewfrom.x = Ani->viewfrom.y = Ani->viewfrom.z = 0;
 } /* End of 'AS4_AnimUnitResponse' function */
 
 /* Функция переключения в/из полноэкранного режима
