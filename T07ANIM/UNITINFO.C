@@ -53,12 +53,6 @@ static VOID InfoUnitClose( as4UNIT_INFO *Unit, as4ANIM *Ani )
  */
 static VOID InfoUnitResponse( as4UNIT_INFO *Unit, as4ANIM *Ani )
 {
-  if (Ani->KeysClick['F'])
-    AS4_AnimFlipFullScreen();
-  if (Ani->KeysClick['P'])
-    AS4_AnimSetPause(!Ani->IsPause);
-  if (Ani->Keys[VK_ESCAPE])
-    DestroyWindow(Ani->hWnd);
 }
 
 
@@ -93,7 +87,7 @@ as4UNIT * AS4_InfoUnitCreate( VOID )
   Unit->Init = (VOID *)InfoUnitInit;
   Unit->Close = (VOID *)InfoUnitClose;
   Unit->Render = (VOID *)InfoUnitRender;
-  Unit->Response = (VOID *)InfoUnitResponse;
+  Unit->Response = (VOID *)AS4_AnimUnitResponse;
   return (as4UNIT *)Unit;
 } /* End of 'AS4_InfoUnitCreate' function */
 

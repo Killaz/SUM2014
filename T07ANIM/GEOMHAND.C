@@ -128,6 +128,10 @@ VOID AS4_GeomDraw( as4GEOM *G )
     glUniform3fv(loc, 1, &V.x);
   }
 
+  loc = glGetUniformLocation(AS4_ShaderProg, "Len");
+  if (loc != -1)
+    glUniform3fv(loc, 1, &G->Len.x);
+
   loc = glGetUniformLocation(AS4_ShaderProg, "Time");
   if (loc != -1)
     glUniform1f(loc, AS4_Anim.Time);

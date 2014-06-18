@@ -12,7 +12,7 @@ typedef struct tagas4UNIT_GOBJ
 {
   AS4_UNIT_BASE_FIELDS; /* Включение базовых полей */
   as4GOBJ Gobj;
-  as4GEOM Obj;
+  as4GEOM Obj[NUMOFMODELS];
 } as4UNIT_GOBJ;
 
 /* Функция инициализации объекта анимации.
@@ -27,9 +27,26 @@ typedef struct tagas4UNIT_GOBJ
 static VOID GObjUnitInit( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
 {
   //AS4_GeomLoad(&Unit->Obj, "Z:\\SUM2014\\models\\Cow.object");
-  AS4_GeomLoad(&Unit->Obj, "E:\\SPR04\\Models\\x6\\x6.object");
-  AS4_GeomTransform(&Unit->Obj, MatrRotateX(-90));
-  AS4_GeomTransform(&Unit->Obj, MatrRotateY(90));
+
+  AS4_GeomLoad(&Unit->Obj[0], "E:\\SPR04\\Models\\x6\\x6.object");
+  AS4_GeomTransform(&Unit->Obj[0], MatrRotateX(-90));
+  AS4_GeomTransform(&Unit->Obj[0], MatrRotateY(90));
+  Unit->Obj[0].Len.x = 1.2, Unit->Obj[0].Len.y = 0.65, Unit->Obj[0].Len.z = 0.6;
+
+  AS4_GeomLoad(&Unit->Obj[1], "E:\\SPR04\\Models\\Avent\\avent.object");
+  AS4_GeomTransform(&Unit->Obj[1], MatrRotateY(180));
+  AS4_GeomTransform(&Unit->Obj[1], MatrTranslate(0, -0.5, 0));
+  Unit->Obj[1].Len.x = 1.43, Unit->Obj[1].Len.y = 0.6, Unit->Obj[1].Len.z = 0.75;
+
+  /*AS4_GeomLoad(&Unit->Obj[2], "E:\\SPR04\\Models\\mord_fustang\\Shelby7.object");
+  AS4_GeomTransform(&Unit->Obj[2], MatrRotateY(90));
+  AS4_GeomTransform(&Unit->Obj[2], MatrTranslate(0, -1.3, 0));
+  Unit->Obj[2].Len.x = 5, Unit->Obj[2].Len.y = 1.3, Unit->Obj[2].Len.z = 0.9;*/
+  AS4_GeomLoad(&Unit->Obj[2], "E:\\SPR04\\Models\\Mrc\\sls_amg.object");
+  AS4_GeomTransform(&Unit->Obj[2], MatrRotateZ(90));
+  AS4_GeomTransform(&Unit->Obj[2], MatrRotateX(-90));
+  AS4_GeomTransform(&Unit->Obj[2], MatrTranslate(0.65, 0, 0));
+  Unit->Obj[2].Len.x = 1.35, Unit->Obj[2].Len.y = 0.45, Unit->Obj[2].Len.z = 0.6;
 } /* End of 'GObjUnitInit' function */
 
 /* Функция обновления межкадровых параметров объекта анимации.
@@ -149,7 +166,7 @@ static VOID GObjUnitRender( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
   //Ani->RndMatrWorld = MatrMulMatr(MatrRotateX(-90), MatrTranslate(0, 0, 0.30 * sin(Ani->Time)));
-  AS4_GeomDraw(&Unit->Obj);
+  AS4_GeomDraw(&Unit->Obj[Ani->CarModel]);
 }
 
 /* Функция деинициализации объекта анимации.
@@ -162,7 +179,9 @@ static VOID GObjUnitRender( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
  */
 static VOID GObjUnitClose( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
 {
-  AS4_RndGObjFree(&Unit->Gobj);
+  INT i;
+  for (i = 0; i < NUMOFMODELS; i++)
+    AS4_RndGeomFree(&Unit->Obj[i]);
 } /* End of 'GObjUnitClose' function */
 
 /* Функция создания объекта анимации.
@@ -180,7 +199,7 @@ as4UNIT * AS4_GObjUnitCreate( VOID )
   /* заполняем поля по-умолчанию */
   Unit->Init = (VOID *)GObjUnitInit;
   Unit->Close = (VOID *)GObjUnitClose;
-  Unit->Response = (VOID *)AS4_AnimUnitResponse;
+  Unit->Response = (VOID *)GObjUnitResponse;
   Unit->Render = (VOID *)GObjUnitRender;
   return (as4UNIT *)Unit;
 } /* End of 'AS4_GObjUnitCreate' function */

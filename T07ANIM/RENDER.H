@@ -24,4 +24,6 @@ BOOL AS4_RndGObjLoad( as4GOBJ *GObj, CHAR *FileName );
 VOID AS4_RndGObjFree( as4GOBJ *GObj );
 VOID AS4_RndGObjDraw( as4GOBJ *GObj );
 
+VOID AS4_RndGeomFree( as4GEOM *Obj );
+
 #endif

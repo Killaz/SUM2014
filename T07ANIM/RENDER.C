@@ -73,6 +73,18 @@ VOID AS4_RndGObjFree( as4GOBJ *GObj )
   memset(GObj, 0, sizeof(as4GOBJ));
 } /* End of 'AS4_RndGObjFree' function */
 
+VOID AS4_RndGeomFree( as4GEOM *Obj )
+{
+  INT i;
+  for (i = 0; i < Obj->NumOfPrims; i++)
+    AS4_PrimFree(&Obj->Prims[i]);
+  free(Obj->Prims);
+  for (i = 0; i < Obj->NumOfMtls; i++)
+    glDeleteTextures(1, &Obj->Mtls[i].TexNo);
+  free(Obj->Mtls);
+  memset(Obj, 0, sizeof(as4GEOM));
+} /* End of 'AS4_RndGObjFree' function */
+
 /* Функция отрисовки геометрического объекта.
  * АРГУМЕНТЫ:
  *   - указатель на структуру для загружаемой геометрии:

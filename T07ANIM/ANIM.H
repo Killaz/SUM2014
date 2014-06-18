@@ -54,6 +54,7 @@
 #define JBUTTON12 11
 #endif
 
+#define NUMOFMODELS 3
 
 /* Объявление типа объектов анимации "вперед" */
 typedef struct tagas4UNIT as4UNIT;
@@ -108,7 +109,7 @@ typedef struct tagas4ANIM
     RndMatrProjection;
   VEC viewto, viewfrom, cl, lg;
   VEC Disc;
-  INT movecoef;
+  INT movecoef, CarModel;
 } as4ANIM;
 
 extern as4ANIM AS4_Anim;

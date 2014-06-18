@@ -44,7 +44,7 @@ BOOL AS4_AnimInit( HWND hWnd )
   AS4_Anim.FarClip = 1000;
   AS4_Anim.viewfrom.x = AS4_Anim.viewfrom.y = AS4_Anim.viewfrom.z = 5;
   AS4_Anim.PolMode = 1;
-  AS4_Anim.movecoef = 30;
+  AS4_Anim.movecoef = 3;
   AS4_Anim.mute = 1;
   AS4_Anim.Disc.x = AS4_Anim.Disc.y = AS4_Anim.Disc.z = 0;
 
@@ -249,33 +249,43 @@ VOID AS4_AnimUnitResponse( as4UNIT *Unit, as4ANIM *Ani )
     Ani->Keys[i] >>= 7;
   for (i = 0; i < 256; i++)
     Ani->KeysClick[i] = Ani->Keys[i] && !Ani->KeysOld[i];
-  if (Ani->KeysClick[VK_ESCAPE])
-  {
-    DestroyWindow(Ani->hWnd);
-    return;
-  }
   for (i = 0; i < 256; i++)
     Ani->KeysOld[i] = Ani->Keys[i];
 
+  if (Ani->KeysClick['F'])
+    AS4_AnimFlipFullScreen();
+  if (Ani->KeysClick['P'])
+    AS4_AnimSetPause(!Ani->IsPause);
+  if (Ani->Keys[VK_ESCAPE])
+    DestroyWindow(Ani->hWnd);
+
   if (Ani->Keys[VK_NUMPAD2])
-    Ani->viewto.x += Ani->movecoef * Ani->DeltaTime * 0.1, Ani->viewfrom.x += Ani->movecoef * Ani->DeltaTime * 0.1;
+    Ani->viewto.x += Ani->movecoef * Ani->DeltaTime * 0.1, Ani->viewfrom.x += Ani->movecoef * Ani->DeltaTime;
   else if (Ani->Keys[VK_NUMPAD8])
-    Ani->viewto.x -= Ani->movecoef * Ani->DeltaTime * 0.1, Ani->viewfrom.x -= Ani->movecoef * Ani->DeltaTime * 0.1;
+    Ani->viewto.x -= Ani->movecoef * Ani->DeltaTime * 0.1, Ani->viewfrom.x -= Ani->movecoef * Ani->DeltaTime;
   if (Ani->Keys[VK_NUMPAD6])
-    Ani->viewto.z -= Ani->movecoef * Ani->DeltaTime * 0.1, Ani->viewfrom.z -= Ani->movecoef * Ani->DeltaTime * 0.1;
+    Ani->viewto.z -= Ani->movecoef * Ani->DeltaTime * 0.1, Ani->viewfrom.z -= Ani->movecoef * Ani->DeltaTime;
   else if (Ani->Keys[VK_NUMPAD4])
-    Ani->viewto.z += Ani->movecoef * Ani->DeltaTime * 0.1, Ani->viewfrom.z += Ani->movecoef * Ani->DeltaTime * 0.1;
+    Ani->viewto.z += Ani->movecoef * Ani->DeltaTime * 0.1, Ani->viewfrom.z += Ani->movecoef * Ani->DeltaTime;
   if (Ani->Keys[VK_NUMPAD9])
-    Ani->viewto.y += Ani->movecoef * Ani->DeltaTime * 0.1, Ani->viewfrom.y += Ani->movecoef * Ani->DeltaTime * 0.1;
+    Ani->viewto.y += Ani->movecoef * Ani->DeltaTime * 0.1, Ani->viewfrom.y += Ani->movecoef * Ani->DeltaTime;
   else if (Ani->Keys[VK_NUMPAD3])
-    Ani->viewto.y -= Ani->movecoef * Ani->DeltaTime * 0.1, Ani->viewfrom.y -= Ani->movecoef * Ani->DeltaTime * 0.1;
+    Ani->viewto.y -= Ani->movecoef * Ani->DeltaTime * 0.1, Ani->viewfrom.y -= Ani->movecoef * Ani->DeltaTime;
   if (Ani->KeysClick[VK_NUMPAD7])
-    Ani->movecoef += 5;
+    Ani->movecoef += 0.5;
   else if (Ani->KeysClick[VK_NUMPAD1])
     if (Ani->movecoef > 0)
-      Ani->movecoef -= 5;
+      Ani->movecoef -= 0.5;
     else
       Ani->movecoef = 0;
+
+  if (Ani->JButsClick[JBUTTON8])
+  {
+    Ani->CarModel = (Ani->CarModel + 1) % NUMOFMODELS;
+  } else if (Ani->JButsClick[JBUTTON7])
+  {
+    Ani->CarModel = (Ani->CarModel - 1 + NUMOFMODELS) % NUMOFMODELS;
+  }
 
   if (Ani->KeysClick[VK_MULTIPLY])
     Ani->viewfrom.x = Ani->viewfrom.y = Ani->viewfrom.z = 5, Ani->viewto.x = Ani->viewto.y = Ani->viewto.z = 0;
@@ -377,10 +387,10 @@ VOID AS4_AnimUnitResponse( as4UNIT *Unit, as4ANIM *Ani )
         if (Ani->JButs[JBUTTON3])
         {
           if (Ani->Disc.x < 5)
-            Ani->Disc.x += 2 * AS4_Anim.DeltaTime * 0.1;
+            Ani->Disc.x -= 2 * AS4_Anim.DeltaTime * 0.1;
         } else if (Ani->JButs[JBUTTON2])
           if (Ani->Disc.x > -5)
-            Ani->Disc.x -= 2 * AS4_Anim.DeltaTime * 0.1;
+            Ani->Disc.x += 2 * AS4_Anim.DeltaTime * 0.1;
         if (Ani->JButsClick[JBUTTON1])
           Ani->Disc.x = Ani->Disc.y = Ani->Disc.z = 0;
         /*if (Ani->JPOV == 3)

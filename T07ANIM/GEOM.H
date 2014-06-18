@@ -121,6 +121,7 @@ typedef struct tagas4GEOM
   INT NumOfPrims, NumOfMtls; /* размерв массивов */
   as4MATERIAL *Mtls;         /* таблица материалов */
   as4PRIM *Prims;            /* массив примитивов */
+  VEC Len;
 } as4GEOM;
 
 /* Функция добавления материала к объекту */
