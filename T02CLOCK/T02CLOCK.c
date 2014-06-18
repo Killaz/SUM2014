@@ -116,7 +116,7 @@ LRESULT CALLBACK WindowFunc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam )
   HDC hDC, hMemDC, hMemDCLogo;
   PAINTSTRUCT ps;
   BITMAP bm;
-  static INT `W = 0, H = 0, k = 1, r = 290;
+  static INT W = 0, H = 0, k = 1, r = 290;
   static HBITMAP hBm, hBmLogo;
   SYSTEMTIME st;
   POINT c;
