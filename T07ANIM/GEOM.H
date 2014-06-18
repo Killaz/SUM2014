@@ -139,4 +139,10 @@ VOID AS4_GeomDraw( as4GEOM *G );
 /* Функция загрузки геометрического объекта */
 BOOL AS4_GeomLoad( as4GEOM *G, CHAR *FileName );
 
+/* Функция преобразования вершин */
+VOID AS4_GeomTransform( as4GEOM *G, MATR M );
+
+/* Функция перевычисления нормалей у примитива */
+VOID AS4_PrimAutoNormals( as4PRIM *P );
+
 #endif

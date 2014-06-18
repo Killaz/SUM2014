@@ -121,16 +121,25 @@ VOID AS4_GeomDraw( as4GEOM *G )
   if (loc != -1)
     glUniformMatrix4fv(loc, 1, FALSE, AS4_Anim.RndMatrView.A[0]);
 
+  loc = glGetUniformLocation(AS4_ShaderProg, "Disc");
+  if (loc != -1)
+  {
+    V = VecSet(AS4_Anim.Disc.x, AS4_Anim.Disc.y, AS4_Anim.Disc.z);
+    glUniform3fv(loc, 1, &V.x);
+  }
+
   loc = glGetUniformLocation(AS4_ShaderProg, "Time");
   if (loc != -1)
     glUniform1f(loc, AS4_Anim.Time);
 
-  V = VecSet(-AS4_Anim.RndMatrView.A[0][2],
-             -AS4_Anim.RndMatrView.A[1][2],
-             -AS4_Anim.RndMatrView.A[2][2]);
   loc = glGetUniformLocation(AS4_ShaderProg, "ViewDir");
   if (loc != -1)
+  {
+    V = VecSet(-AS4_Anim.RndMatrView.A[0][2],
+             -AS4_Anim.RndMatrView.A[1][2],
+             -AS4_Anim.RndMatrView.A[2][2]);
     glUniform3fv(loc, 1, &V.x);
+  }
 
 
   for (i = 0; i < G->NumOfPrims; i++)

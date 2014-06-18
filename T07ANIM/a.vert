@@ -16,6 +16,7 @@ uniform mat4 MatrWVP;
 uniform mat4 MatrWorldInverseTranspose;
 uniform mat4 MatrWorld;
 uniform mat4 MatrView;
+uniform vec3 Disc;
 
 uniform float Time;
 
@@ -28,7 +29,7 @@ out vec4 CameraPos;
 /* Main function */
 void main( void )
 {
-  CameraPos = -(MatrWorld /** MatrView*/) * vec4(InPosition.xyz, 1);
+  CameraPos = -(MatrWorld * MatrView) * vec4(InPosition.xyz, 1);
   gl_Position = MatrWVP * vec4(InPosition.xyz, 1);
   DrawNormal = mat3(MatrWorldInverseTranspose) * InNormal;
   DrawColor = InColor;

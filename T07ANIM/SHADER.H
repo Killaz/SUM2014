@@ -1,7 +1,7 @@
 /* FILENAME: SHADER.H
- * PROGRAMMER: SS3
+ * PROGRAMMER: AS4
  * PURPOSE: Shader handle declaration module.
- * LAST UPDATE: 13.06.2014
+ * LAST UPDATE: 18.06.2014
  */
 
 #ifndef __SHADER_H_

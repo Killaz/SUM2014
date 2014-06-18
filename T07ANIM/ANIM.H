@@ -12,12 +12,47 @@
 /* Максимальное количество элементов анимации */
 #define AS4_MAX_UNITS 3000
 
-#define AS4_JOYSTICK_THRESHOLD 128.0
+#define AS4_JOYSTICK_THRESHOLD 256.0
 
 /* Устранение ошибок замера джойстика */
 #define AS4_GET_AXIS_VALUE(A) \
   ((INT)(AS4_JOYSTICK_THRESHOLD * (2.0 * (ji.dw ## A ## pos - jc.w ## A ## min) / \
    (jc.w ## A ## max - jc.w ## A ##min - 1) - 1) + 0.5) / AS4_JOYSTICK_THRESHOLD)
+
+#define JXCoord JX
+#define JYCoord JY
+
+#ifndef SAITEK
+#define JZCoord JZ
+#define JRCoord JR
+#define JBUTTON1 0
+#define JBUTTON2 1
+#define JBUTTON3 2
+#define JBUTTON4 3
+#define JBUTTON5 4
+#define JBUTTON6 5
+#define JBUTTON7 6
+#define JBUTTON8 7
+#define JBUTTON9 8
+#define JBUTTON10 9
+#define JBUTTON11 10
+#define JBUTTON12 11
+#else
+#define JZCoord JR
+#define JRCoord JZ
+#define JBUTTON1 2
+#define JBUTTON2 3
+#define JBUTTON3 0
+#define JBUTTON4 1
+#define JBUTTON5 4
+#define JBUTTON6 6
+#define JBUTTON7 5
+#define JBUTTON8 7
+#define JBUTTON9 8
+#define JBUTTON10 9
+#define JBUTTON11 10
+#define JBUTTON12 11
+#endif
 
 
 /* Объявление типа объектов анимации "вперед" */
@@ -72,6 +107,7 @@ typedef struct tagas4ANIM
     RndMatrView,
     RndMatrProjection;
   VEC viewto, viewfrom, cl, lg;
+  VEC Disc;
   INT movecoef;
 } as4ANIM;
 

@@ -198,16 +198,16 @@ static VOID LoadMaterials( as4GEOM *G, CHAR *FileName )
 /* Вспомогательная макро-функция разбора индексов граней */
 #define SCANF3(Str, Ref) \
   if (sscanf(Str, "%i/%i/%i", &Ref[0], &Ref[1], &Ref[2]) == 3) \
-    Ref[0]--, Ref[1]--, Ref[2]--;                            \
+    Ref[0]--, Ref[1]--, Ref[2]--;                              \
   else                                                         \
     if (sscanf(Str, "%i//%i", &Ref[0], &Ref[2]) == 2)          \
-      Ref[0]--, Ref[1] = -1, Ref[2]--;                       \
+      Ref[0]--, Ref[1] = -1, Ref[2]--;                         \
     else                                                       \
       if (sscanf(Str, "%i/%i", &Ref[0], &Ref[1]) == 2)         \
-        Ref[0]--, Ref[1]--, Ref[2] = -1;                     \
+        Ref[0]--, Ref[1]--, Ref[2] = -1;                       \
       else                                                     \
         if (sscanf(Str, "%i", &Ref[0]) == 1)                   \
-          Ref[0]--, Ref[1] = -1, Ref[2] = -1;                \
+          Ref[0]--, Ref[1] = -1, Ref[2] = -1;                  \
         else                                                   \
           Ref[0] = -1, Ref[1] = -1, Ref[2] = -1
 
@@ -395,6 +395,7 @@ BOOL AS4_GeomLoad( as4GEOM *G, CHAR *FileName )
   {
     INT minv, maxv, j;
     as4PRIM prim;
+    BOOL is_need_normal = FALSE;
 
     minv = maxv = ReadF[PrimInfo[p].First][0];
     for (i = PrimInfo[p].First; i <= PrimInfo[p].Last; i++)
@@ -417,6 +418,8 @@ BOOL AS4_GeomLoad( as4GEOM *G, CHAR *FileName )
       prim.V[i].P = ReadV[VertexRefs[minv + i].Nv];
       if ((n = VertexRefs[minv + i].Nn) != -1)
         prim.V[i].N = ReadN[n];
+      else
+        is_need_normal = TRUE;
       if ((n = VertexRefs[minv + i].Nt) != -1)
         prim.V[i].T = ReadUV[n];
     }
@@ -424,6 +427,8 @@ BOOL AS4_GeomLoad( as4GEOM *G, CHAR *FileName )
     for (i = 0; i < fn; i++)
       for (j = 0; j < 3; j++)
         prim.I[i * 3 + j] = ReadF[PrimInfo[p].First + i][j] - minv;
+    if (is_need_normal)
+        AS4_PrimAutoNormals(&prim);
     prim.Mtl = PrimInfo[p].Mtl;
     AS4_GeomAddPrim(G, &prim);
   }
@@ -431,5 +436,28 @@ BOOL AS4_GeomLoad( as4GEOM *G, CHAR *FileName )
   free(ReadV);
   return TRUE;
 } /* End of 'AS4_GeomLoad' function */
+
+/* Функция преобразования вершин.
+ * АРГУМЕНТЫ:
+ *   - геометрический объект:
+ *       as4GEOM *G;
+ *   - матрица преобразования:
+ *       MATR M;
+ * ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ: Нет.
+ */
+VOID AS4_GeomTransform( as4GEOM *G, MATR M )
+{
+  INT i, j;
+  MATR InvM = MatrTranspose(MatrInverse(M));
+
+  InvM.A[3][0] = InvM.A[3][1] = InvM.A[3][2] = 0;
+
+  for (i = 0; i < G->NumOfPrims; i++)
+    for (j = 0; j < G->Prims[i].NumOfV; j++)
+    {
+      G->Prims[i].V[j].P = PointTransform(G->Prims[i].V[j].P, M);
+      G->Prims[i].V[j].N = PointTransform(G->Prims[i].V[j].N, InvM);
+    }
+} /* End of 'AS4_GeomTransform' function */
 
 /* END OF 'GEOMLOAD.C' FILE */

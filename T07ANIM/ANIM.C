@@ -10,42 +10,6 @@
 #include "anim.h"
 #include "VEC.H"
 
-
-#define JXCoord JX
-#define JYCoord JY
-
-#ifndef SAITEK
-#define JZCoord JZ
-#define JRCoord JR
-#define JBUTTON1 0
-#define JBUTTON2 1
-#define JBUTTON3 2
-#define JBUTTON4 3
-#define JBUTTON5 4
-#define JBUTTON6 5
-#define JBUTTON7 6
-#define JBUTTON8 7
-#define JBUTTON9 8
-#define JBUTTON10 9
-#define JBUTTON11 10
-#define JBUTTON12 11
-#else
-#define JZCoord JR
-#define JRCoord JZ
-#define JBUTTON1 2
-#define JBUTTON2 3
-#define JBUTTON3 0
-#define JBUTTON4 1
-#define JBUTTON5 4
-#define JBUTTON6 6
-#define JBUTTON7 5
-#define JBUTTON8 7
-#define JBUTTON9 8
-#define JBUTTON10 9
-#define JBUTTON11 10
-#define JBUTTON12 11
-#endif
-
 /* Системный контекст анимации */
 as4ANIM AS4_Anim;
 
@@ -82,6 +46,7 @@ BOOL AS4_AnimInit( HWND hWnd )
   AS4_Anim.PolMode = 1;
   AS4_Anim.movecoef = 30;
   AS4_Anim.mute = 1;
+  AS4_Anim.Disc.x = AS4_Anim.Disc.y = AS4_Anim.Disc.z = 0;
 
   /*** Инициализация OpenGL ***/
 
@@ -293,17 +258,17 @@ VOID AS4_AnimUnitResponse( as4UNIT *Unit, as4ANIM *Ani )
     Ani->KeysOld[i] = Ani->Keys[i];
 
   if (Ani->Keys[VK_NUMPAD2])
-    Ani->viewto.x += Ani->movecoef * Ani->DeltaTime, Ani->viewfrom.x += Ani->movecoef * Ani->DeltaTime;
+    Ani->viewto.x += Ani->movecoef * Ani->DeltaTime * 0.1, Ani->viewfrom.x += Ani->movecoef * Ani->DeltaTime * 0.1;
   else if (Ani->Keys[VK_NUMPAD8])
-    Ani->viewto.x -= Ani->movecoef * Ani->DeltaTime, Ani->viewfrom.x -= Ani->movecoef * Ani->DeltaTime;
+    Ani->viewto.x -= Ani->movecoef * Ani->DeltaTime * 0.1, Ani->viewfrom.x -= Ani->movecoef * Ani->DeltaTime * 0.1;
   if (Ani->Keys[VK_NUMPAD6])
-    Ani->viewto.z -= Ani->movecoef * Ani->DeltaTime, Ani->viewfrom.z -= Ani->movecoef * Ani->DeltaTime;
+    Ani->viewto.z -= Ani->movecoef * Ani->DeltaTime * 0.1, Ani->viewfrom.z -= Ani->movecoef * Ani->DeltaTime * 0.1;
   else if (Ani->Keys[VK_NUMPAD4])
-    Ani->viewto.z += Ani->movecoef * Ani->DeltaTime, Ani->viewfrom.z += Ani->movecoef * Ani->DeltaTime;
+    Ani->viewto.z += Ani->movecoef * Ani->DeltaTime * 0.1, Ani->viewfrom.z += Ani->movecoef * Ani->DeltaTime * 0.1;
   if (Ani->Keys[VK_NUMPAD9])
-    Ani->viewto.y += Ani->movecoef * Ani->DeltaTime, Ani->viewfrom.y += Ani->movecoef * Ani->DeltaTime;
+    Ani->viewto.y += Ani->movecoef * Ani->DeltaTime * 0.1, Ani->viewfrom.y += Ani->movecoef * Ani->DeltaTime * 0.1;
   else if (Ani->Keys[VK_NUMPAD3])
-    Ani->viewto.y -= Ani->movecoef * Ani->DeltaTime, Ani->viewfrom.y -= Ani->movecoef * Ani->DeltaTime;
+    Ani->viewto.y -= Ani->movecoef * Ani->DeltaTime * 0.1, Ani->viewfrom.y -= Ani->movecoef * Ani->DeltaTime * 0.1;
   if (Ani->KeysClick[VK_NUMPAD7])
     Ani->movecoef += 5;
   else if (Ani->KeysClick[VK_NUMPAD1])
@@ -395,6 +360,29 @@ VOID AS4_AnimUnitResponse( as4UNIT *Unit, as4ANIM *Ani )
           else
             Ani->JPOV = ji.dwPOV / 4500 + 1;
         }
+        if (Ani->JPOV == 3)
+        {
+          if (Ani->Disc.z < 5)
+            Ani->Disc.z += 2 * AS4_Anim.DeltaTime * 0.1;
+        } else if (Ani->JPOV == 7)
+          if (Ani->Disc.z > -5)
+            Ani->Disc.z -= 2 * AS4_Anim.DeltaTime * 0.1;
+        if (Ani->JPOV == 1)
+        {
+          if (Ani->Disc.y < 5)
+            Ani->Disc.y += 2 * AS4_Anim.DeltaTime * 0.1;
+        } else if (Ani->JPOV == 5)
+          if (Ani->Disc.y > -5)
+            Ani->Disc.y -= 2 * AS4_Anim.DeltaTime * 0.1;
+        if (Ani->JButs[JBUTTON3])
+        {
+          if (Ani->Disc.x < 5)
+            Ani->Disc.x += 2 * AS4_Anim.DeltaTime * 0.1;
+        } else if (Ani->JButs[JBUTTON2])
+          if (Ani->Disc.x > -5)
+            Ani->Disc.x -= 2 * AS4_Anim.DeltaTime * 0.1;
+        if (Ani->JButsClick[JBUTTON1])
+          Ani->Disc.x = Ani->Disc.y = Ani->Disc.z = 0;
         /*if (Ani->JPOV == 3)
           AS4_Anim.cl.z += 100 * AS4_Anim.DeltaTime;
         else if (Ani->JPOV == 7)

@@ -103,13 +103,10 @@ BOOL AS4_PrimCreate( as4PRIM *P, as4PRIM_TYPE Type,
 BOOL AS4_PrimCreateSphere( as4PRIM *P, VEC C, FLT R, INT M, INT N )
 {
   INT i, j;
-  DBL t = clock() / 1000.0, t1;
-
-  t1 = 2 + 2 * cos(t);
-  t = 2 + 2 * sin(t * 1.01 + 2);
 
   if (!AS4_PrimCreate(P, AS4_PRIM_GRID, M, N))
     return FALSE;
+  /* задаем координаты точек */
   for (i = 0; i < N; i++)
     for (j = 0; j < M; j++)
     {
@@ -118,10 +115,100 @@ BOOL AS4_PrimCreateSphere( as4PRIM *P, VEC C, FLT R, INT M, INT N )
         theta = i / (N - 1.0) * M_PI,
         phi = j / (M - 1.0) * 2 * M_PI;
 
-      V->N = VecSet(power(sin(theta), t1) * power(sin(phi), t),
-                    power(cos(theta), t1),
-                    power(sin(theta), t1) * power(cos(phi), t));
+      V->N = VecSet(sin(theta) * sin(phi),
+                    cos(theta),
+                    sin(theta) * cos(phi));
       V->P = VecAddVec(VecMulNum(V->N, R), C);
+    }
+  return TRUE;
+} /* End of 'AS4_PrimCreateSphere' function */
+
+/* Функция создания цилиндра.
+ * АРГУМЕНТЫ:
+ *   - создаваемый примитив:
+ *       as4PRIM *P;
+ *   - высота цилиндра:
+ *       FLT H;
+ *   - радиус цилиндра:
+ *       FLT R;
+ *   - разбиение сетки (ширина, высота):
+ *       INT M, N;
+ * ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ:
+ *   (BOOL) TRUE при успехе.
+ */
+BOOL AS4_PrimCreateCylinder( as4PRIM *P, FLT H, FLT R, INT M, INT N )
+{
+  INT i, j;
+
+  if (!AS4_PrimCreate(P, AS4_PRIM_GRID, M, N))
+    return FALSE;
+  /* задаем координаты точек */
+  for (i = 0; i < N; i++)
+    for (j = 0; j < M; j++)
+    {
+      as4VERTEX *V = P->V + i * M + j;
+      DBL
+        phi = j / (M - 1.0) * 2 * M_PI;
+
+      V->N = VecSet(0, sin(phi), cos(phi));
+      V->P = VecSet(-H / 2 + i * H / (N - 1), V->N.y * R, V->N.z * R);
+      V->T.U *= 10;
+      V->T.V *= 8;  /* количество полос */
+    }
+  return TRUE;
+} /* End of 'AS4_PrimCreateCylinder' function */
+
+/* Функция создания карты высот.
+ * АРГУМЕНТЫ:
+ *   - создаваемый примитив:
+ *       as4PRIM *P;
+ *   - растровое изображение с высотами:
+ *       CHAR *FileName;
+ *   - максимальная высота и масштабирование:
+ *       FLT Height, Scale;
+ * ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ:
+ *   (BOOL) TRUE при успехе.
+ */
+BOOL AS4_PrimCreateHeightField( as4PRIM *P, CHAR *FileName, FLT Height, FLT Scale )
+{
+  INT i, j;
+  IMAGE Img;
+
+  memset(P, 0, sizeof(as4PRIM));
+  if (!ImageLoad(&Img, FileName))
+    return FALSE;
+
+  if (!AS4_PrimCreate(P, AS4_PRIM_GRID, Img.W, Img.H))
+    return FALSE;
+  /* задаем координаты точек */
+  for (i = 0; i < Img.H; i++)
+    for (j = 0; j < Img.W; j++)
+    {
+      as4VERTEX *V = P->V + i * Img.W + j;
+      BYTE rgb[4], h;
+      DWORD *col = (DWORD *)rgb;
+
+      *col = ImageGetP(&Img, j, i);
+      h = (rgb[2] * 30 + rgb[1] * 59 + rgb[0] * 11) / 100;
+      V->P = VecSet((j - Img.W / 2) / Scale, h * Height / 255, (i - Img.H / 2) / Scale);
+    }
+  /* задаем нормали точек */
+  for (i = 1; i < Img.H - 1; i++)
+    for (j = 1; j < Img.W - 1; j++)
+    {
+      VEC
+        p00 = P->V[i * Img.W + j].P,
+        p0_1 = P->V[i * Img.W + (j - 1)].P,
+        p01 = P->V[i * Img.W + (j + 1)].P,
+        p_10 = P->V[(i - 1) * Img.W + j].P,
+        p10 = P->V[(i + 1) * Img.W + j].P,
+        du0 = VecNormalize(VecSet((p0_1.y - p00.y), (p00.x - p0_1.x), 0)),
+        du1 = VecNormalize(VecSet((p00.y - p01.y), (p01.x - p00.x), 0)),
+        dv0 = VecNormalize(VecSet(0, (p00.z - p_10.z), (p_10.y - p00.y))),
+        dv1 = VecNormalize(VecSet(0, (p10.z - p00.z), (p00.y - p10.y)));
+
+      P->V[i * Img.W + j].N = VecNormalize(VecAddVec(VecAddVec(du0, du1), VecAddVec(dv0, dv1)));
+      /// P->V[i * Img.W + j].N = VecNormalize(VecAddVec(du0, du1));
     }
   return TRUE;
 } /* End of 'AS4_PrimCreateSphere' function */
@@ -213,5 +300,42 @@ VOID AS4_PrimDraw( as4PRIM *P )
   }
   glUseProgram(0);
 } /* End of 'AS4_PrimFree' function */
+
+
+/* Функция перевычисления нормалей у примитива.
+ * АРГУМЕНТЫ:
+ *   - примитив:
+ *       as4PRIM *P;
+ * ВОЗВРАЩАЕМОЕ ЗНАЧЕНИЕ: Нет.
+ */
+VOID AS4_PrimAutoNormals( as4PRIM *P )
+{
+  INT i;
+
+  if (P->Type == AS4_PRIM_TRIMESH)
+  {
+    /* обнулили все нормали вершин */
+    for (i = 0; i < P->NumOfV; i++)
+      P->V[i].N = VecSet(0, 0, 0);
+
+    /* вычислили нормали всех граней и добавили их к образующих их вершинам */
+    for (i = 0; i < P->NumOfI / 3; i++)
+    {
+      INT *n = P->I + i * 3;
+      VEC norm;
+
+      norm =
+        VecNormalize(VecCrossVec(VecSubVec(P->V[n[1]].P, P->V[n[0]].P),
+                                 VecSubVec(P->V[n[2]].P, P->V[n[0]].P)));
+      P->V[n[0]].N = VecAddVec(P->V[n[0]].N, norm);
+      P->V[n[1]].N = VecAddVec(P->V[n[1]].N, norm);
+      P->V[n[2]].N = VecAddVec(P->V[n[2]].N, norm);
+    }
+
+    /* нормируем */
+    for (i = 0; i < P->NumOfV; i++)
+      P->V[i].N = VecNormalize(P->V[i].N);
+  }
+} /* End of 'AS4_PrimAutoNormals' function */
 
 /* END OF 'PRIM.C' FILE */

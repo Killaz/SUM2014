@@ -28,6 +28,8 @@ static VOID GObjUnitInit( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
 {
   //AS4_GeomLoad(&Unit->Obj, "Z:\\SUM2014\\models\\Cow.object");
   AS4_GeomLoad(&Unit->Obj, "E:\\SPR04\\Models\\x6\\x6.object");
+  AS4_GeomTransform(&Unit->Obj, MatrRotateX(-90));
+  AS4_GeomTransform(&Unit->Obj, MatrRotateY(90));
 } /* End of 'GObjUnitInit' function */
 
 /* Функция обновления межкадровых параметров объекта анимации.
