@@ -85,13 +85,14 @@ int MergeSort( int *a, int l, int r )
 int main( void )
 {
 	int n, p[N], pr[N], i;
-	time_t t = clock();
+	time_t t;
 #ifndef DEBUG
 	freopen("perm.out", "wt", stdout);
 #endif
 /*	if (freopen("perm.out", "rt", stdin))
 		scanf("%*d: %d  -  %2d invertions\n*/
 	scanf("%d", &n);
+	t = clock();
 	for (i = 0; i < n; i++)
 		p[i] = i + 1;
 	PrintArr(p, n, 1, 0);
@@ -101,6 +102,6 @@ int main( void )
 		CopyArr(p, pr, n);
 		PrintArr(p, n, i++, MergeSort(pr, 0, n));
 	}
-	fprintf(stderr, "time: %.3f\n", (clock() - t) / (float) CLOCKS_PER_SEC);
+	fprintf(stderr, "time: %.3f seconds\n", (clock() - t) / (float) CLOCKS_PER_SEC);
 	return 0;
 }
