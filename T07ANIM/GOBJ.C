@@ -28,12 +28,12 @@ static VOID GObjUnitInit( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
 {
   //AS4_GeomLoad(&Unit->Obj, "Z:\\SUM2014\\models\\Cow.object");
 
-  AS4_GeomLoad(&Unit->Obj[0], "E:\\SPR04\\Models\\x6\\x6.object");
+  AS4_GeomLoad(&Unit->Obj[0], "Models\\x6\\x6.object");//"E:\\SPR04\\Models\\x6\\x6.object");
   AS4_GeomTransform(&Unit->Obj[0], MatrRotateX(-90));
   AS4_GeomTransform(&Unit->Obj[0], MatrRotateY(90));
   Unit->Obj[0].Len.x = 1.2, Unit->Obj[0].Len.y = 0.65, Unit->Obj[0].Len.z = 0.6;
 
-  AS4_GeomLoad(&Unit->Obj[1], "E:\\SPR04\\Models\\Avent\\avent.object");
+  AS4_GeomLoad(&Unit->Obj[1], "Models\\Avent\\avent.object");//"E:\\SPR04\\Models\\Avent\\avent.object");
   AS4_GeomTransform(&Unit->Obj[1], MatrRotateY(180));
   AS4_GeomTransform(&Unit->Obj[1], MatrTranslate(0, -0.5, 0));
   Unit->Obj[1].Len.x = 1.43, Unit->Obj[1].Len.y = 0.6, Unit->Obj[1].Len.z = 0.75;
@@ -42,7 +42,7 @@ static VOID GObjUnitInit( as4UNIT_GOBJ *Unit, as4ANIM *Ani )
   AS4_GeomTransform(&Unit->Obj[2], MatrRotateY(90));
   AS4_GeomTransform(&Unit->Obj[2], MatrTranslate(0, -1.3, 0));
   Unit->Obj[2].Len.x = 5, Unit->Obj[2].Len.y = 1.3, Unit->Obj[2].Len.z = 0.9;*/
-  AS4_GeomLoad(&Unit->Obj[2], "E:\\SPR04\\Models\\Mrc\\sls_amg.object");
+  AS4_GeomLoad(&Unit->Obj[2], "Models\\Mrc\\sls_amg.object");//"E:\\SPR04\\Models\\Mrc\\sls_amg.object");
   AS4_GeomTransform(&Unit->Obj[2], MatrRotateZ(90));
   AS4_GeomTransform(&Unit->Obj[2], MatrRotateX(-90));
   AS4_GeomTransform(&Unit->Obj[2], MatrTranslate(0.65, 0, 0));
